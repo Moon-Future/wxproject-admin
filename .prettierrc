@@ -1,0 +1,7 @@
+{
+  "eslintIntegration": true,
+  "singleQuote": true,
+  "semi": false,
+  "printWidth": 150,
+  "htmlWhitespaceSensitivity": "ignore"
+}

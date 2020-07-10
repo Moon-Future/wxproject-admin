@@ -1,0 +1,35 @@
+.iconfont {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.page-width {
+  margin: auto;
+  width: 70%;
+  min-width: 700px;
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    min-width: initial;
+  }
+}
+
+.beauty-Scroll {
+  .el-scrollbar {
+    height: 100%; /*此处一定要设置高度，不然内层的计算属性不生效*/
+  }
+  .el-scrollbar__wrap {
+    // width: calc(100% + 17px); /*将垂直滚动条挤到可视区域之外*/
+    // height: calc(100% + 17px); /*将水平滚动条挤到可视区域之外*/
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+}
+
+// Notification 通知
+.el-notification__group {
+  width: 100%;
+}

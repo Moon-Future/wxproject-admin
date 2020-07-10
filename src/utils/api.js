@@ -1,0 +1,72 @@
+import http from './http'
+
+export const URL = {
+  register: '/api/user/register',
+  login: '/api/user/login',
+  checkLogin: '/api/user/checkLogin',
+
+  // 词组
+  getWord: '/api/proname/getWord',
+  addWord: '/api/proname/addWord',
+  delWord: '/api/proname/delWord',
+  // 汉字
+  getChinese: '/api/proname/getChinese',
+  addChinese: '/api/proname/addChinese',
+  delChinese: '/api/proname/delChinese',
+  // 诗词
+  getPoetry: '/api/proname/getPoetry',
+  addPoetry: '/api/proname/addPoetry',
+  delPoetry: '/api/proname/delPoetry'
+}
+
+const API = {
+  register(data) {
+    return http.post(URL.register, data)
+  },
+
+  login(username, password) {
+    return http.post(URL.login, { username, password })
+  },
+
+  checkLogin() {
+    return http.post(URL.checkLogin)
+  },
+
+  getWord(params = {}) {
+    return http.get(URL.getWord, { params })
+  },
+
+  addWord(data) {
+    return http.post(URL.addWord, data)
+  },
+
+  delWord(data) {
+    return http.post(URL.delWord, data)
+  },
+
+  getChinese(params = {}) {
+    return http.get(URL.getChinese, { params })
+  },
+
+  addChinese(data) {
+    return http.post(URL.addChinese, data)
+  },
+
+  delChinese(data) {
+    return http.post(URL.delChinese, data)
+  },
+
+  getPoetry(params = {}) {
+    return http.get(URL.getPoetry, { params })
+  },
+
+  addPoetry(data) {
+    return http.post(URL.addPoetry, data)
+  },
+
+  delPoetry(data) {
+    return http.post(URL.delPoetry, data)
+  }
+}
+
+export default API

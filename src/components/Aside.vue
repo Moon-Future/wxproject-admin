@@ -1,0 +1,73 @@
+<template>
+  <div class="aside-container">
+    <el-menu :default-active="onRoutes" background-color="#324157" text-color="#fff" unique-opened router>
+      <template v-for="item in navList">
+        <template v-if="item.subs">
+          <el-submenu :key="item.index" :index="item.index">
+            <template slot="title">
+              <i :class="item.icon"></i>
+              {{ item.title }}
+            </template>
+            <el-menu-item v-for="(subItem, i) in item.subs" :key="i" :index="subItem.index">{{ subItem.title }}</el-menu-item>
+          </el-submenu>
+        </template>
+        <template v-else>
+          <el-menu-item :key="item.index" :index="item.index">
+            <i :class="item.icon"></i>
+            {{ item.title }}
+          </el-menu-item>
+        </template>
+      </template>
+    </el-menu>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Aside',
+  data() {
+    return {
+      navList: [
+        {
+          // icon: 'el-icon-menu',
+          index: '1',
+          title: '取名通',
+          subs: [
+            {
+              index: '/proname/chinese',
+              title: '汉字'
+            },
+            {
+              index: '/proname/word',
+              title: '词组'
+            },
+            {
+              index: '/proname/poetry',
+              title: '古诗'
+            },
+            {
+              index: '/proname/article',
+              title: '文章'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  computed: {
+    onRoutes() {
+      return this.$route.path
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.aside-container {
+  height: 100%;
+}
+.el-menu {
+  border-right: solid 1px #324157;
+  height: 100%;
+}
+</style>
