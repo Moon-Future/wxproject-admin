@@ -4,7 +4,7 @@
       <el-table :data="tableData" style="width: 100%" v-loading="loading">
         <el-table-column v-for="(item, index) in fields" :prop="item.field" :label="item.label" :width="item.width || 'initial'" :key="index">
           <template slot-scope="scope">
-            <div v-html="scope.row[item.field]"></div>
+            <div v-html="scope.row[item.showField || item.field]"></div>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="150">
@@ -40,6 +40,11 @@
           </template>
           <template v-if="item.nodeType === 'number'">
             <el-input-number v-model="formData[item.field]" :min="0"></el-input-number>
+          </template>
+          <template v-if="item.nodeType === 'select'">
+            <el-select v-model="formData[item.field]" placeholder="请选择">
+              <el-option v-for="option in item.options" :key="option.value" :label="option.label" :value="option.value"></el-option>
+            </el-select>
           </template>
         </el-form-item>
       </el-form>
@@ -110,14 +115,18 @@ export default {
     iniFormData() {
       let obj = {}
       this.fields.forEach(ele => {
-        obj[ele.field] = ''
+        obj[ele.field] = ele.default || ''
       })
       this.formData = obj
     },
     handleEdit(index, row) {
       this.row = row
       for (let key in this.formData) {
-        this.$set(this.formData, key, row[key].replace(new RegExp('</br>', 'g'), '\n'))
+        if (typeof row[key] === 'string' && row[key].indexOf('</br>') !== -1) {
+          this.$set(this.formData, key, row[key].replace(new RegExp('</br>', 'g'), '\n'))
+        } else {
+          this.$set(this.formData, key, row[key])
+        }
       }
       this.edit = true
     },

@@ -11,10 +11,10 @@ router.get('/getWord', async ctx => {
     return
   }
   try {
-    let { pageNo = 1, pageSize = 20, word = '', author = '', poetry = '' } = ctx.request.query
+    let { pageNo = 1, pageSize = 20, word = '', author = '', poetry = '', use = '' } = ctx.request.query
     let where = `WHERE ${word === '' ? true : `word LIKE '%${word}%'`} AND ${author === '' ? true : `author LIKE '%${author}%'`} AND ${
       poetry === '' ? true : `poetry LIKE '%${poetry}%'`
-    }`
+    } AND ${use === '' ? true : `use = ${use}`}`
     let count = await query(`SELECT COUNT(*) as count FROM name_word ${where} AND off != 1`)
     let res = await query(`SELECT * FROM name_word ${where} AND off != 1 ORDER BY createtime ASC LIMIT ${(pageNo - 1) * pageSize}, ${pageSize}`)
     ctx.body = { data: res, count: count[0].count }
@@ -30,16 +30,19 @@ router.post('/addWord', async ctx => {
     return
   }
   try {
-    const { word, mean, feature, source, author, poetry, likes, id = '' } = ctx.request.body
+    let { word, mean, feature, source, author, dynasty, poetry, likes, used, id = '' } = ctx.request.body
+    author = author === '' ? '佚名' : author
     if (id !== '') {
       // 更新
-      await query(`UPDATE name_word SET mean = ?, feature = ?, source = ?, author = ?, poetry = ?, likes = ? WHERE id = ?`, [
+      await query(`UPDATE name_word SET mean = ?, feature = ?, source = ?, author = ?, dynasty = ?, poetry = ?, likes = ?, used = ? WHERE id = ?`, [
         mean,
         feature,
         source,
         author,
+        dynasty,
         poetry,
         likes,
+        used,
         id
       ])
       ctx.body = { message: '更新成功' }
@@ -51,17 +54,10 @@ router.post('/addWord', async ctx => {
       ctx.body = { message: '已存在相同数据' }
       return
     }
-    await query(`INSERT INTO name_word (id, word, mean, feature, source, author, poetry, likes, createtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
-      shortid(),
-      word,
-      mean,
-      feature,
-      source,
-      author,
-      poetry,
-      likes,
-      Date.now()
-    ])
+    await query(
+      `INSERT INTO name_word (id, word, mean, feature, source, author, dynasty, poetry, likes, used, createtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [shortid(), word, mean, feature, source, author, dynasty, poetry, likes, used, Date.now()]
+    )
     ctx.body = { message: '添加成功' }
   } catch (err) {
     throw new Error(err)
@@ -90,9 +86,9 @@ router.get('/getChinese', async ctx => {
     return
   }
   try {
-    let { pageNo = 1, pageSize = 20, chinese = '', attr = '' } = ctx.request.query
-    let where = `WHERE ${chinese === '' ? true : 'chinese = ?'} AND ${attr === '' ? true : 'attr = ?'}`
-    let arr = [chinese, attr].filter(ele => {
+    let { pageNo = 1, pageSize = 20, chinese = '', attr = '', surname = '' } = ctx.request.query
+    let where = `WHERE ${chinese === '' ? true : 'chinese = ?'} AND ${attr === '' ? true : 'attr = ?'} AND ${surname === '' ? true : 'surname = ?'}`
+    let arr = [chinese, attr, surname].filter(ele => {
       return ele !== ''
     })
     let count = await query(`SELECT COUNT(*) as count FROM name_chinese ${where} AND off != 1`, arr)
@@ -113,10 +109,10 @@ router.post('/addChinese', async ctx => {
     return
   }
   try {
-    let { chinese, pronounce, stroke, attr, id = '' } = ctx.request.body
+    let { chinese, pronounce, stroke, attr, surname, id = '' } = ctx.request.body
     if (id !== '') {
       // 更新
-      await query(`UPDATE name_chinese SET pronounce = ?, stroke = ?, attr = ? WHERE id = ?`, [pronounce, stroke, attr, id])
+      await query(`UPDATE name_chinese SET pronounce = ?, stroke = ?, attr = ?, surname = ? WHERE id = ?`, [pronounce, stroke, attr, surname, id])
       ctx.body = { message: '更新成功' }
       return
     }
@@ -126,12 +122,13 @@ router.post('/addChinese', async ctx => {
       ctx.body = { message: '已存在相同数据' }
       return
     }
-    await query(`INSERT INTO name_chinese (id, chinese, pronounce, stroke, attr, createtime) VALUES (?, ?, ?, ?, ?, ?)`, [
+    await query(`INSERT INTO name_chinese (id, chinese, pronounce, stroke, attr, surname, createtime) VALUES (?, ?, ?, ?, ?, ?, ?)`, [
       shortid(),
       chinese,
       pronounce,
       stroke,
       attr,
+      surname,
       Date.now()
     ])
     ctx.body = { message: '添加成功' }
@@ -181,10 +178,11 @@ router.post('/addPoetry', async ctx => {
     return
   }
   try {
-    let { poetry, author, verse, id = '' } = ctx.request.body
+    let { poetry, author, dynasty, verse, id = '' } = ctx.request.body
+    author = author === '' ? '佚名' : author
     if (id !== '') {
       // 更新
-      await query(`UPDATE name_poetry SET poetry = ?, author = ?, verse = ? WHERE id = ?`, [poetry, author, verse, id])
+      await query(`UPDATE name_poetry SET poetry = ?, author = ?, dynasty = ?, verse = ? WHERE id = ?`, [poetry, author, dynasty, verse, id])
       ctx.body = { message: '更新成功' }
       return
     }
@@ -194,10 +192,11 @@ router.post('/addPoetry', async ctx => {
       ctx.body = { message: '已存在相同数据' }
       return
     }
-    await query(`INSERT INTO name_poetry (id, poetry, author, verse, createtime) VALUES (?, ?, ?, ?, ?)`, [
+    await query(`INSERT INTO name_poetry (id, poetry, author, dynasty, verse, createtime) VALUES (?, ?, ?, ?, ?, ?)`, [
       shortid(),
       poetry,
       author,
+      dynasty,
       verse,
       Date.now()
     ])

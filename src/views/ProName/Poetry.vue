@@ -47,7 +47,8 @@ export default {
       delUrl: 'delPoetry',
       fields: [
         { field: 'poetry', label: '诗名', width: 200, required: true },
-        { field: 'author', label: '作者', width: 100, required: true },
+        { field: 'author', label: '作者', width: 100 },
+        { field: 'dynasty', label: '朝代', width: 100 },
         { field: 'verse', label: '诗句', nodeType: 'textarea', required: true }
       ],
       tableData: [],
