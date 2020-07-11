@@ -45,10 +45,10 @@ const errorHandle = (status, message) => {
     case 403:
       tip('登录过期，请重新登录', 'error')
       localStorage.removeItem('token')
-      // store.commit('loginSuccess', null)
-      // setTimeout(() => {
-      //   toLogin()
-      // }, 1000)
+      store.commit('SET_USERINFO', { status: false })
+      setTimeout(() => {
+        toLogin()
+      }, 1000)
       break
     // 404 请求不存在
     case 404:
