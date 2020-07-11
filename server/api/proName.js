@@ -11,10 +11,10 @@ router.get('/getWord', async ctx => {
     return
   }
   try {
-    let { pageNo = 1, pageSize = 20, word = '', author = '', poetry = '', use = '' } = ctx.request.query
+    let { pageNo = 1, pageSize = 20, word = '', author = '', poetry = '', used = '' } = ctx.request.query
     let where = `WHERE ${word === '' ? true : `word LIKE '%${word}%'`} AND ${author === '' ? true : `author LIKE '%${author}%'`} AND ${
       poetry === '' ? true : `poetry LIKE '%${poetry}%'`
-    } AND ${use === '' ? true : `use = ${use}`}`
+    } AND ${used === '' ? true : `used LIKE '%${used}%'`}`
     let count = await query(`SELECT COUNT(*) as count FROM name_word ${where} AND off != 1`)
     let res = await query(`SELECT * FROM name_word ${where} AND off != 1 ORDER BY createtime ASC LIMIT ${(pageNo - 1) * pageSize}, ${pageSize}`)
     ctx.body = { data: res, count: count[0].count }

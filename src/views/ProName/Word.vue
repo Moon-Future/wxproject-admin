@@ -12,7 +12,7 @@
       </div>
       <div class="search-item">
         <el-select v-model="searchConds.used" placeholder="请选择">
-          <el-option label="全部" value="-1"></el-option>
+          <el-option label="全部" value=""></el-option>
           <el-option label="女孩" value="0"></el-option>
           <el-option label="男孩" value="1"></el-option>
           <el-option label="网游" value="2"></el-option>
@@ -63,14 +63,14 @@ export default {
       url: 'addWord',
       delUrl: 'delWord',
       fields: [
-        { field: 'word', label: '词语', required: true, disabled: true },
-        { field: 'mean', label: '含义', nodeType: 'textarea', rows: 3 },
+        { field: 'word', label: '词语', width: 50, required: true, disabled: true },
+        { field: 'mean', label: '含义', nodeType: 'textarea', rows: 5, hideField: true },
         { field: 'feature', label: '特征' },
-        { field: 'source', label: '出处', nodeType: 'textarea', rows: 3 },
+        { field: 'source', label: '出处', nodeType: 'textarea', rows: 5 },
         { field: 'author', label: '作者', width: 100 },
         { field: 'dynasty', label: '朝代', width: 50 },
         { field: 'poetry', label: '诗名' },
-        { field: 'likes', label: '点赞量', nodeType: 'number' },
+        { field: 'likes', label: '点赞量', nodeType: 'number', hideField: true },
         {
           field: 'used',
           label: '适用',
@@ -81,9 +81,11 @@ export default {
             { value: '-1', label: '全部' },
             { value: '0', label: '女孩' },
             { value: '1', label: '男孩' },
+            { value: '01', label: '男女' },
             { value: '2', label: '网游' },
             { value: '3', label: '社交' }
-          ]
+          ],
+          width: 50
         }
       ],
       tableData: [],
@@ -97,6 +99,7 @@ export default {
         '-1': '',
         '0': '女孩',
         '1': '男孩',
+        '01': '男女',
         '2': '网游',
         '3': '社交'
       }
@@ -110,7 +113,7 @@ export default {
         this.loading = true
         let res = await API.getWord(params)
         res.data.data.forEach((ele, index) => {
-          res.data.data[index].used = ele.used === null ? '-1' : ele.used + ''
+          res.data.data[index].used = ele.used === null ? '-1' : ele.used
           res.data.data[index].usedm = this.usedMap[ele.used]
         })
         this.tableData = res.data.data

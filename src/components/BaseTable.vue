@@ -2,11 +2,13 @@
   <div>
     <div class="table-wrapper" v-if="!edit">
       <el-table :data="tableData" style="width: 100%" v-loading="loading">
-        <el-table-column v-for="(item, index) in fields" :prop="item.field" :label="item.label" :width="item.width || 'initial'" :key="index">
-          <template slot-scope="scope">
-            <div v-html="scope.row[item.showField || item.field]"></div>
-          </template>
-        </el-table-column>
+        <template v-for="(item, index) in fields">
+          <el-table-column v-if="!item.hideField" :prop="item.field" :label="item.label" :width="item.width || 'initial'" :key="index">
+            <template slot-scope="scope">
+              <div v-html="scope.row[item.showField || item.field]"></div>
+            </template>
+          </el-table-column>
+        </template>
         <el-table-column label="操作" width="150">
           <template slot-scope="scope">
             <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
