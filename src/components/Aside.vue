@@ -50,6 +50,10 @@ export default {
               title: '文章'
             }
           ]
+        },
+        {
+          index: '/login',
+          title: '退出'
         }
       ]
     }

@@ -17,7 +17,8 @@ async function importChinese() {
     })
     console.log(
       `共【${len}】条数据，正在导入第【${i + 1}，${obj.c}】条，还剩【${len - i - 1}】条，用时【${dateFormat(startTime, 'hh:mm')}，${(Date.now() -
-        startTime) / 1000} s】`
+        startTime) /
+        1000} s】`
     )
     await query(`INSERT INTO name_chinese (id, chinese, pronounce, stroke, surname, attr, createtime) VALUES (?, ?, ?, ?, ?, ?, ?)`, [
       id,
@@ -30,7 +31,6 @@ async function importChinese() {
     ])
   }
 }
-
 
 // 导入诗词
 async function importPoetry() {
@@ -83,10 +83,15 @@ async function importPoetry() {
       duplObj[filecontent[j].t] = filecontent[j].t
       let obj = filecontent[j]
       let id = shortid()
-      obj.c = obj.c.replace(/<br>/g, '\n').replace(/<p>/g, '').replace(/<\/p>/g, '').trim()
+      obj.c = obj.c
+        .replace(/<br>/g, '\n')
+        .replace(/<p>/g, '')
+        .replace(/<\/p>/g, '')
+        .trim()
       console.log(
         `共【${len}, ${filename}】条数据，正在导入第【${j + 1}, ${len - j - 1}】条，用时【${dateFormat(startTime, 'hh:mm')}，${(Date.now() -
-          startTime) / 1000} s】`
+          startTime) /
+          1000} s】`
       )
       await query(`INSERT INTO name_poetry (id, title, author, dynasty, verse, createtime) VALUES (?, ?, ?, ?, ?, ?)`, [
         id,

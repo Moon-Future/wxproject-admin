@@ -27,6 +27,9 @@ export default {
       loading: false
     }
   },
+  created() {
+    this.setUserInfo({ status: false })
+  },
   methods: {
     ...mapMutations({
       setUserInfo: 'SET_USERINFO'

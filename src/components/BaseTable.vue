@@ -62,11 +62,7 @@
             </div>
           </template>
           <template v-if="item.nodeType === 'date'">
-            <el-date-picker
-              v-model="formData[item.field]"
-              type="date"
-              placeholder="选择日期">
-            </el-date-picker>
+            <el-date-picker v-model="formData[item.field]" type="date" placeholder="选择日期"></el-date-picker>
           </template>
         </el-form-item>
       </el-form>
@@ -149,15 +145,15 @@ export default {
             ['bold', 'italic', 'underline', 'strike'],
             ['blockquote', 'code-block', 'link'],
             [{ list: 'ordered' }, { list: 'bullet' }],
-            [{ 'indent': '-1'}, { 'indent': '+1' }],
-            [{ 'size': ['small', false, 'large', 'huge'] }], // 字体大小
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],     //几级标题
-            [{ 'color': [] }, { 'background': [] }],     // 字体颜色，字体背景颜色
+            [{ indent: '-1' }, { indent: '+1' }],
+            [{ size: ['small', false, 'large', 'huge'] }], // 字体大小
+            [{ header: [1, 2, 3, 4, 5, 6, false] }], //几级标题
+            [{ color: [] }, { background: [] }], // 字体颜色，字体背景颜色
             ['clean'],
             ['image']
           ]
         }
-      },
+      }
     }
   },
   computed: {
@@ -183,20 +179,23 @@ export default {
     },
     handleEdit(index, row, scope) {
       let self = this
-      this.$emit('handleEdit', { index: index, callback: function(res) {
-        self.row = row
-        for (let key in res) {
-          self.row[key] = res[key]
-        }
-        for (let key in self.formData) {
-          if (typeof row[key] === 'string' && row[key].indexOf('</br>') !== -1) {
-            self.$set(self.formData, key, row[key].replace(new RegExp('</br>', 'g'), '\n'))
-          } else {
-            self.$set(self.formData, key, row[key])
+      this.$emit('handleEdit', {
+        index: index,
+        callback: function(res) {
+          self.row = row
+          for (let key in res) {
+            self.row[key] = res[key]
           }
+          for (let key in self.formData) {
+            if (typeof row[key] === 'string' && row[key].indexOf('</br>') !== -1) {
+              self.$set(self.formData, key, row[key].replace(new RegExp('</br>', 'g'), '\n'))
+            } else {
+              self.$set(self.formData, key, row[key])
+            }
+          }
+          self.edit = true
         }
-        self.edit = true
-      } })
+      })
     },
     handleDelete(index, row) {
       this.$confirm('是否删除?', '提示', {

@@ -11,28 +11,40 @@ const routes = [
     path: '/',
     name: 'Home',
     meta: {
-      requireAuth: false
+      requireAuth: true
     },
     component: Home,
     children: [
       {
         path: '/proname/chinese',
         name: 'nameChinese',
+        meta: {
+          requireAuth: true
+        },
         component: () => import('@/views/ProName/Chinese.vue')
       },
       {
         path: '/proname/word',
         name: 'nameWord',
+        meta: {
+          requireAuth: true
+        },
         component: () => import('@/views/ProName/Word.vue')
       },
       {
         path: '/proname/poetry',
         name: 'namePoetry',
+        meta: {
+          requireAuth: true
+        },
         component: () => import('@/views/ProName/Poetry.vue')
       },
       {
         path: '/proname/article',
         name: 'nameArticle',
+        meta: {
+          requireAuth: true
+        },
         component: () => import('@/views/ProName/Article.vue')
       }
     ]
