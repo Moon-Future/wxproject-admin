@@ -29,6 +29,11 @@ const routes = [
         path: '/proname/poetry',
         name: 'namePoetry',
         component: () => import('@/views/ProName/Poetry.vue')
+      },
+      {
+        path: '/proname/article',
+        name: 'nameArticle',
+        component: () => import('@/views/ProName/Article.vue')
       }
     ]
   },

@@ -16,7 +16,14 @@ export const URL = {
   // 诗词
   getPoetry: '/api/proname/getPoetry',
   addPoetry: '/api/proname/addPoetry',
-  delPoetry: '/api/proname/delPoetry'
+  delPoetry: '/api/proname/delPoetry',
+  // 获取文章标签
+  getTag: '/api/proname/getTag',
+  // 文章
+  getArticle: '/api/proname/getArticle',
+  addArticle: '/api/proname/addArticle',
+  delArticle: '/api/proname/delArticle',
+  getArticleFile: '/api/proname/getArticleFile'
 }
 
 const API = {
@@ -66,6 +73,26 @@ const API = {
 
   delPoetry(data) {
     return http.post(URL.delPoetry, data)
+  },
+
+  getTag() {
+    return http.get(URL.getTag)
+  },
+
+  getArticle(params = {}) {
+    return http.get(URL.getArticle, { params })
+  },
+
+  addArticle(data) {
+    return http.post(URL.addArticle, data)
+  },
+
+  delArticle(data) {
+    return http.post(URL.delArticle, data)
+  },
+
+  getArticleFile(params = {}) {
+    return http.get(URL.getArticleFile, { params })
   }
 }
 

@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <div class="form-wrapper" v-else>
+    <div class="form-wrapper" v-else :style="{ width: width }">
       <el-form ref="form" :model="formData" label-width="80px" label-position="left">
         <el-form-item v-for="(item, index) in fields" :class="{ required: item.required }" :prop="item.field" :label="item.label" :key="index">
           <template v-if="!item.nodeType || item.nodeType === 'input'">
@@ -48,9 +48,29 @@
               <el-option v-for="option in item.options" :key="option.value" :label="option.label" :value="option.value"></el-option>
             </el-select>
           </template>
+          <template v-if="item.nodeType === 'richtext'">
+            <div class="rich-editor">
+              <quill-editor
+                ref="myQuillEditor"
+                v-model="formData[item.field]"
+                :options="editorOption"
+                @blur="onEditorBlur($event)"
+                @focus="onEditorFocus($event)"
+                @ready="onEditorReady($event)"
+                @change="onEditorChange($event)"
+              />
+            </div>
+          </template>
+          <template v-if="item.nodeType === 'date'">
+            <el-date-picker
+              v-model="formData[item.field]"
+              type="date"
+              placeholder="选择日期">
+            </el-date-picker>
+          </template>
         </el-form-item>
       </el-form>
-      <div class="form-btngrp">
+      <div class="form-btngrp" :style="{ width: btngrpWidth }">
         <el-button type="primary" class="form-btn" @click="submit" :loading="submitng">提交</el-button>
         <el-button type="danger" class="form-btn" @click="cancel">返回</el-button>
       </div>
@@ -59,11 +79,18 @@
 </template>
 
 <script>
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+import { quillEditor } from 'vue-quill-editor'
 import API from '@/utils/api'
 import { deepClone } from '@/utils/util'
 
 export default {
   name: 'BaseTable',
+  components: {
+    quillEditor
+  },
   props: {
     url: {
       type: String,
@@ -72,6 +99,10 @@ export default {
     delUrl: {
       type: String,
       default: ''
+    },
+    width: {
+      type: String,
+      default: '500px'
     },
     tableData: {
       type: Array,
@@ -107,13 +138,42 @@ export default {
       edit: false,
       formData: {},
       submitng: false,
-      row: null
+      row: null,
+      editorOption: {
+        // Some Quill options...
+        placeholder: '',
+        readOnly: true,
+        formats: {},
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline', 'strike'],
+            ['blockquote', 'code-block', 'link'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            [{ 'indent': '-1'}, { 'indent': '+1' }],
+            [{ 'size': ['small', false, 'large', 'huge'] }], // 字体大小
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],     //几级标题
+            [{ 'color': [] }, { 'background': [] }],     // 字体颜色，字体背景颜色
+            ['clean'],
+            ['image']
+          ]
+        }
+      },
+    }
+  },
+  computed: {
+    btngrpWidth() {
+      return this.width.indexOf('px') === -1 ? '100%' : this.width.replace('px', '') - 80 + 'px'
     }
   },
   created() {
     this.iniFormData()
   },
   methods: {
+    // 富文本
+    onEditorBlur(quill) {},
+    onEditorFocus(quill) {},
+    onEditorReady(quill) {},
+    onEditorChange({ quill, html, text }) {},
     iniFormData() {
       let obj = {}
       this.fields.forEach(ele => {
@@ -121,16 +181,22 @@ export default {
       })
       this.formData = obj
     },
-    handleEdit(index, row) {
-      this.row = row
-      for (let key in this.formData) {
-        if (typeof row[key] === 'string' && row[key].indexOf('</br>') !== -1) {
-          this.$set(this.formData, key, row[key].replace(new RegExp('</br>', 'g'), '\n'))
-        } else {
-          this.$set(this.formData, key, row[key])
+    handleEdit(index, row, scope) {
+      let self = this
+      this.$emit('handleEdit', { index: index, callback: function(res) {
+        self.row = row
+        for (let key in res) {
+          self.row[key] = res[key]
         }
-      }
-      this.edit = true
+        for (let key in self.formData) {
+          if (typeof row[key] === 'string' && row[key].indexOf('</br>') !== -1) {
+            self.$set(self.formData, key, row[key].replace(new RegExp('</br>', 'g'), '\n'))
+          } else {
+            self.$set(self.formData, key, row[key])
+          }
+        }
+        self.edit = true
+      } })
     },
     handleDelete(index, row) {
       this.$confirm('是否删除?', '提示', {
@@ -156,6 +222,7 @@ export default {
       this.$emit('changeNo', val)
     },
     async submit() {
+      console.log(this.formData)
       if (this.submitng) return
       for (let i = 0, len = this.fields.length; i < len; i++) {
         if (this.fields[i].required && this.formData[this.fields[i].field] === '') {
@@ -237,5 +304,17 @@ export default {
 }
 .page-wrapper {
   margin-top: 10px;
+}
+.rich-editor {
+  background: #fff;
+}
+/deep/ .ql-editor {
+  min-height: 500px;
+}
+/deep/ .ql-toolbar {
+  text-align: left;
+}
+/deep/ .ql-snow .ql-picker {
+  line-height: 24px;
 }
 </style>

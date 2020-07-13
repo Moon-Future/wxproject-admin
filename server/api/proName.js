@@ -3,6 +3,9 @@ const router = new Router()
 const query = require('../database/init')
 const shortid = require('shortid')
 const { checkToken } = require('./util')
+const path = require('path')
+const fs = require('fs')
+let filePath = path.join(__dirname, '../../article/proname')
 
 // 获取词组
 router.get('/getWord', async ctx => {
@@ -159,8 +162,8 @@ router.get('/getPoetry', async ctx => {
     return
   }
   try {
-    let { pageNo = 1, pageSize = 20, poetry = '', author = '', verse = '' } = ctx.request.query
-    let where = `WHERE ${poetry === '' ? true : `poetry LIKE '%${poetry}%'`} AND ${author === '' ? true : `author LIKE '%${author}%'`} AND ${
+    let { pageNo = 1, pageSize = 20, title = '', author = '', verse = '' } = ctx.request.query
+    let where = `WHERE ${title === '' ? true : `title LIKE '%${title}%'`} AND ${author === '' ? true : `author LIKE '%${author}%'`} AND ${
       verse === '' ? true : `verse LIKE '%${verse}%'`
     }`
     let count = await query(`SELECT COUNT(*) as count FROM name_poetry ${where} AND off != 1`)
@@ -178,23 +181,23 @@ router.post('/addPoetry', async ctx => {
     return
   }
   try {
-    let { poetry, author, dynasty, verse, id = '' } = ctx.request.body
+    let { title, author, dynasty, verse, id = '' } = ctx.request.body
     author = author === '' ? '佚名' : author
     if (id !== '') {
       // 更新
-      await query(`UPDATE name_poetry SET poetry = ?, author = ?, dynasty = ?, verse = ? WHERE id = ?`, [poetry, author, dynasty, verse, id])
+      await query(`UPDATE name_poetry SET title = ?, author = ?, dynasty = ?, verse = ? WHERE id = ?`, [title, author, dynasty, verse, id])
       ctx.body = { message: '更新成功' }
       return
     }
-    let res = await query(`SELECT * FROM name_poetry WHERE poetry = ?`, [poetry])
+    let res = await query(`SELECT * FROM name_poetry WHERE title = ?`, [title])
     if (res.length !== 0) {
       ctx.status = 400
       ctx.body = { message: '已存在相同数据' }
       return
     }
-    await query(`INSERT INTO name_poetry (id, poetry, author, dynasty, verse, createtime) VALUES (?, ?, ?, ?, ?, ?)`, [
+    await query(`INSERT INTO name_poetry (id, title, author, dynasty, verse, createtime) VALUES (?, ?, ?, ?, ?, ?)`, [
       shortid(),
-      poetry,
+      title,
       author,
       dynasty,
       verse,
@@ -220,5 +223,105 @@ router.post('/delPoetry', async ctx => {
     throw new Error(err)
   }
 })
+
+// 获取文章标签
+router.get('/getTag', async ctx => {
+  try {
+    let res = await query(`SELECT * FROM name_tag WHERE off != 1 ORDER BY ork ASC`)
+    ctx.body = { data: res }
+  } catch (err) {
+    throw new Error(err)
+  }
+})
+
+// 获取文章
+router.get('/getArticle', async ctx => {
+  const userInfo = checkToken(ctx)
+  if (!userInfo) {
+    return
+  }
+  try {
+    let { pageNo = 1, pageSize = 20, title = '', tag = '' } = ctx.request.query
+    let where = `WHERE ${title === '' ? true : `title LIKE '%${title}%'`} AND ${tag === '' ? true : `tag = ${tag}`}`
+    let count = await query(`SELECT COUNT(*) as count FROM name_article ${where} AND off != 1`)
+    let res = await query(`SELECT * FROM name_article ${where} AND off != 1 ORDER BY createtime ASC LIMIT ${(pageNo - 1) * pageSize}, ${pageSize}`)
+    ctx.body = { data: res, count: count[0].count }
+  } catch (err) {
+    throw new Error(err)
+  }
+})
+
+// 新增文章
+router.post('/addArticle', async ctx => {
+  const userInfo = checkToken(ctx)
+  if (!userInfo) {
+    return
+  }
+  try {
+    let { title, author, summary, tag, date, content, id = '' } = ctx.request.body
+    tag = tag === '' ? '-1' : tag
+    author = author === '' ? '取名通' : author
+    date = date ? new Date(date).getTime() : new Date().getTime()
+    if (id !== '') {
+      // 更新
+      await query(`UPDATE name_article SET title = ?, author = ?, summary = ?, tag = ?, date = ? WHERE id = ?`, [title, author, summary, tag, date, id])
+      writeFile(content, title)
+      ctx.body = { message: '更新成功' }
+      return
+    }
+    let res = await query(`SELECT * FROM name_article WHERE title = ?`, [title])
+    if (res.length !== 0) {
+      ctx.status = 400
+      ctx.body = { message: '已存在相同数据' }
+      return
+    }
+    await query(`INSERT INTO name_article (id, title, author, summary, tag, date, createtime) VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+      shortid(),
+      title,
+      author,
+      summary,
+      tag,
+      date,
+      Date.now()
+    ])
+    writeFile(content, title)
+    ctx.body = { message: '添加成功' }
+  } catch (err) {
+    throw new Error(err)
+  }
+})
+
+// 删除文章
+router.post('/delArticle', async ctx => {
+  const userInfo = checkToken(ctx)
+  if (!userInfo) {
+    return
+  }
+  try {
+    let { id } = ctx.request.body
+    let res = await query(`SELECT * FROM name_article WHERE id = ?`, [id])
+    let title = res[0].title
+    await query(`UPDATE name_article SET off = 1 WHERE id = ?`, [id])
+    fs.renameSync(path.join(filePath, `${title}.html`), path.join(filePath, `off_${title}.html`))
+    ctx.body = { message: '删除成功' }
+  } catch (err) {
+    throw new Error(err)
+  }
+})
+
+// 读取文章内容
+router.get('/getArticleFile', async ctx => {
+  try {
+    let { title } = ctx.request.query
+    let res = fs.readFileSync(path.join(filePath, `${title}.html`), 'utf-8')
+    ctx.body = { data: res }
+  } catch (err) {
+    throw new Error(err)
+  }
+})
+
+function writeFile(content, filename) {
+  fs.writeFileSync(path.join(filePath, `${filename}.html`), content, 'utf-8')
+}
 
 module.exports = router

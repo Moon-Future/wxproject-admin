@@ -2,7 +2,7 @@
   <div>
     <Search @search="search">
       <div class="search-item">
-        <el-input placeholder="请输入诗名" v-model="searchConds.poetry" clearable></el-input>
+        <el-input placeholder="请输入诗名" v-model="searchConds.title" clearable></el-input>
       </div>
       <div class="search-item">
         <el-input placeholder="请输入作者" v-model="searchConds.author" clearable></el-input>
@@ -46,14 +46,14 @@ export default {
       url: 'addPoetry',
       delUrl: 'delPoetry',
       fields: [
-        { field: 'poetry', label: '诗名', width: 200, required: true },
+        { field: 'title', label: '诗名', width: 200, required: true },
         { field: 'author', label: '作者', width: 100 },
         { field: 'dynasty', label: '朝代', width: 100 },
         { field: 'verse', label: '诗句', nodeType: 'textarea', required: true }
       ],
       tableData: [],
       searchConds: {
-        poetry: '',
+        title: '',
         author: '',
         verse: ''
       }
