@@ -236,15 +236,13 @@ router.get('/getTag', async ctx => {
 
 // 获取文章
 router.get('/getArticle', async ctx => {
-  const userInfo = checkToken(ctx)
-  if (!userInfo) {
-    return
-  }
   try {
     let { pageNo = 1, pageSize = 20, title = '', tag = '' } = ctx.request.query
     let where = `WHERE ${title === '' ? true : `title LIKE '%${title}%'`} AND ${tag === '' ? true : `tag = ${tag}`}`
     let count = await query(`SELECT COUNT(*) as count FROM name_article ${where} AND off != 1`)
-    let res = await query(`SELECT * FROM name_article ${where} AND off != 1 ORDER BY createtime ASC LIMIT ${(pageNo - 1) * pageSize}, ${pageSize}`)
+    let res = await query(
+      `SELECT a.*, t.name as tagm FROM name_article a, name_tag t ${where} AND a.tag = t.id AND a.off != 1 ORDER BY createtime ASC LIMIT ${(pageNo - 1) * pageSize}, ${pageSize}`
+    )
     ctx.body = { data: res, count: count[0].count }
   } catch (err) {
     throw new Error(err)
@@ -264,7 +262,14 @@ router.post('/addArticle', async ctx => {
     date = date ? new Date(date).getTime() : new Date().getTime()
     if (id !== '') {
       // 更新
-      await query(`UPDATE name_article SET title = ?, author = ?, summary = ?, tag = ?, date = ? WHERE id = ?`, [title, author, summary, tag, date, id])
+      await query(`UPDATE name_article SET title = ?, author = ?, summary = ?, tag = ?, date = ? WHERE id = ?`, [
+        title,
+        author,
+        summary,
+        tag,
+        date,
+        id
+      ])
       writeFile(content, title)
       ctx.body = { message: '更新成功' }
       return
