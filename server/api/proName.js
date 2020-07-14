@@ -2,7 +2,7 @@ const Router = require('koa-router')
 const router = new Router()
 const query = require('../database/init')
 const shortid = require('shortid')
-const { checkToken } = require('./util')
+const { checkToken, random } = require('./util')
 const path = require('path')
 const fs = require('fs')
 let filePath = path.join(__dirname, '../../article/proname')
@@ -58,8 +58,8 @@ router.post('/addWord', async ctx => {
       return
     }
     await query(
-      `INSERT INTO name_word (id, word, mean, feature, source, author, dynasty, poetry, likes, used, createtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [shortid(), word, mean, feature, source, author, dynasty, poetry, likes, used, Date.now()]
+      `INSERT INTO name_word (id, word, mean, feature, source, author, dynasty, poetry, likes, used, length, createtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [shortid(), word, mean, feature, source, author, dynasty, poetry, likes, used, word.length, Date.now()]
     )
     ctx.body = { message: '添加成功' }
   } catch (err) {
@@ -241,7 +241,9 @@ router.get('/getArticle', async ctx => {
     let where = `WHERE ${title === '' ? true : `title LIKE '%${title}%'`} AND ${tag === '' ? true : `tag = ${tag}`}`
     let count = await query(`SELECT COUNT(*) as count FROM name_article ${where} AND off != 1`)
     let res = await query(
-      `SELECT a.*, t.name as tagm FROM name_article a, name_tag t ${where} AND a.tag = t.id AND a.off != 1 ORDER BY createtime ASC LIMIT ${(pageNo - 1) * pageSize}, ${pageSize}`
+      `SELECT a.*, t.name as tagm FROM name_article a, name_tag t ${where} AND a.tag = t.id AND a.off != 1 ORDER BY createtime ASC LIMIT ${(pageNo -
+        1) *
+        pageSize}, ${pageSize}`
     )
     ctx.body = { data: res, count: count[0].count }
   } catch (err) {
@@ -256,17 +258,18 @@ router.post('/addArticle', async ctx => {
     return
   }
   try {
-    let { title, author, summary, tag, date, content, id = '' } = ctx.request.body
+    let { title, author, summary, tag, img, date, content, id = '' } = ctx.request.body
     tag = tag === '' ? '-1' : tag
     author = author === '' ? '取名通' : author
     date = date ? new Date(date).getTime() : new Date().getTime()
     if (id !== '') {
       // 更新
-      await query(`UPDATE name_article SET title = ?, author = ?, summary = ?, tag = ?, date = ? WHERE id = ?`, [
+      await query(`UPDATE name_article SET title = ?, author = ?, summary = ?, tag = ?, img = ?, date = ? WHERE id = ?`, [
         title,
         author,
         summary,
         tag,
+        img,
         date,
         id
       ])
@@ -280,12 +283,13 @@ router.post('/addArticle', async ctx => {
       ctx.body = { message: '已存在相同数据' }
       return
     }
-    await query(`INSERT INTO name_article (id, title, author, summary, tag, date, createtime) VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+    await query(`INSERT INTO name_article (id, title, author, summary, tag, img, date, createtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [
       shortid(),
       title,
       author,
       summary,
       tag,
+      img,
       date,
       Date.now()
     ])
@@ -321,12 +325,104 @@ router.get('/getArticleFile', async ctx => {
     let res = fs.readFileSync(path.join(filePath, `${title}.html`), 'utf-8')
     ctx.body = { data: res }
   } catch (err) {
-    throw new Error(err)
+    ctx.body = { data: '' }
+    // throw new Error(err)
   }
 })
 
 function writeFile(content, filename) {
   fs.writeFileSync(path.join(filePath, `${filename}.html`), content, 'utf-8')
+}
+
+// 生成名字
+router.post('/createName', async ctx => {
+  try {
+    let { exceptList = [], surname, userd, length, feature } = ctx.request.body
+    let count = (await query(`SELECT COUNT(*) as count FROM name_word WHERE off != 1`))[0].count
+    let result = await getRandWord(exceptList, count)
+    // 获取拼音
+    for (let i = 0, len = result.length; i < len; i++) {
+      let word = result[i].word,
+        wordStr = '',
+        pronounce = [],
+        attr = [],
+        wordMap = {}
+      word.split('').forEach((ele, index) => {
+        wordStr += `"${ele}", `
+        wordMap[ele] = index
+      })
+      wordStr = wordStr.substr(0, wordStr.length - 2)
+      let res = await query(`SELECT * FROM name_chinese WHERE chinese IN (${wordStr})`)
+      res.forEach((ele, index) => {
+        res[index].ork = wordMap[ele.chinese] || 0
+      })
+      res.sort((a, b) => {
+        return a.ork - b.ork
+      })
+      res.forEach(ele => {
+        pronounce.push(ele.pronounce.split(',').join(' | '))
+        ele.attr ? attr.push(ele.attr) : false
+      })
+      result[i].pronounce = pronounce.join('，')
+      result[i].attr = attr.join('，')
+    }
+    ctx.body = { data: result }
+  } catch (err) {
+    throw new Error(err)
+  }
+})
+
+/**
+ * 随机取数据
+ * @param {Array} exceptList 已获取数据，在 sql 语句中排除掉
+ * @param {Number} count 数据库数据总数
+ */
+async function getRandWord(exceptList, count) {
+  let pageSize = 10,
+    exceptStr = '',
+    data = []
+  if (exceptList.length === count) {
+    let poetry = await query(`SELECT * FROM name_poetry ORDER BY rand() LIMIT ${pageSize}`)
+    data = data.concat(await filterPoetry(poetry))
+    return data
+  }
+  exceptList.forEach(ele => {
+    exceptStr += `"${ele}", `
+  })
+  exceptStr = exceptStr.substr(0, exceptStr.length - 2)
+  let where = `WHERE ${exceptList.length === 0 ? true : `id NOT IN (${exceptStr})`}`
+  let res = await query(`SELECT * FROM name_word ${where} ORDER BY rand() LIMIT ${pageSize}`)
+  for (let i = 0, len = res.length; i < len; i++) {
+    exceptList.push(res[i].id)
+    data.push(res[i])
+  }
+  // word 表数据已获取完，若还有剩下，再接着获取古诗词，从中拆分出 word
+  if (res.length < pageSize) {
+    let rest = pageSize - res.length
+    let poetry = await query(`SELECT * FROM name_poetry ORDER BY rand() LIMIT ${rest}`)
+    data = data.concat(await filterPoetry(poetry))
+  }
+  return data
+}
+
+/**
+ * 从古诗中随机取出词组
+ */
+async function filterPoetry(poetryList) {
+  let data = []
+  for (let i = 0, len = poetryList.length; i < len; i++) {
+    let contentArr = poetryList[i].verse.split('\n')
+    let content = contentArr[random(0, contentArr.length - 1)]
+    data.push({
+      word: content[0] + content[1],
+      mean: '',
+      source: content,
+      author: poetryList[i].author,
+      dynasty: poetryList[i].dynasty,
+      poetry: poetryList[i].title
+    })
+  }
+  return data
 }
 
 module.exports = router

@@ -5,7 +5,8 @@
         <template v-for="(item, index) in fields">
           <el-table-column v-if="!item.hideField" :prop="item.field" :label="item.label" :width="item.width || 'initial'" :key="index">
             <template slot-scope="scope">
-              <div v-html="scope.row[item.showField || item.field]"></div>
+              <img class="article-img" :src="scope.row[item.showField || item.field]" alt="" v-if="item.tableNodeType === 'img'">
+              <div v-html="scope.row[item.showField || item.field]" v-else></div>
             </template>
           </el-table-column>
         </template>
@@ -52,6 +53,7 @@
             <div class="rich-editor">
               <quill-editor
                 ref="myQuillEditor"
+                class="ql-editor"
                 v-model="formData[item.field]"
                 :options="editorOption"
                 @blur="onEditorBlur($event)"
@@ -221,7 +223,6 @@ export default {
       this.$emit('changeNo', val)
     },
     async submit() {
-      console.log(this.formData)
       if (this.submitng) return
       for (let i = 0, len = this.fields.length; i < len; i++) {
         if (this.fields[i].required && this.formData[this.fields[i].field] === '') {
@@ -278,6 +279,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.article-img {
+  width: 65px;
+}
 .table-btngrp {
   text-align: right;
   margin-top: 10px;

@@ -61,6 +61,7 @@ export default {
         { field: 'author', label: '作者' },
         { field: 'summary', label: '概要' },
         { field: 'tag', label: '标签', showField: 'tagm', nodeType: 'select', options: [] },
+        { field: 'img', label: '封面', tableNodeType: 'img' },
         { field: 'date', label: '日期', showField: 'dateFormat', nodeType: 'date' },
         { field: 'content', label: '文章', required: true, nodeType: 'richtext', hideField: true, handleEdit: true }
       ],

@@ -47,4 +47,8 @@ function createId(len = 6) {
     .slice(-len)
 }
 
-module.exports = { checkToken, dateFormat, createId }
+function random(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+module.exports = { checkToken, dateFormat, createId, random }
