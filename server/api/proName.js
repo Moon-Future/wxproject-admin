@@ -14,10 +14,10 @@ router.get('/getWord', async ctx => {
     return
   }
   try {
-    let { pageNo = 1, pageSize = 20, word = '', author = '', poetry = '', used = '' } = ctx.request.query
+    let { pageNo = 1, pageSize = 20, word = '', author = '', poetry = '', used = '', enor } = ctx.request.query
     let where = `WHERE ${word === '' ? true : `word LIKE '%${word}%'`} AND ${author === '' ? true : `author LIKE '%${author}%'`} AND ${
       poetry === '' ? true : `poetry LIKE '%${poetry}%'`
-    } AND ${used === '' ? true : `used LIKE '%${used}%'`}`
+    } AND ${used === '' ? true : `used LIKE '%${used}%'`} AND ${enor === '' ? true : `enor LIKE '%${enor}%'`}`
     let count = await query(`SELECT COUNT(*) as count FROM name_word ${where} AND off != 1`)
     let res = await query(`SELECT * FROM name_word ${where} AND off != 1 ORDER BY createtime ASC LIMIT ${(pageNo - 1) * pageSize}, ${pageSize}`)
     ctx.body = { data: res, count: count[0].count }
@@ -33,21 +33,14 @@ router.post('/addWord', async ctx => {
     return
   }
   try {
-    let { word, mean, feature, source, author, dynasty, poetry, likes, used, id = '' } = ctx.request.body
+    let { word, mean, feature, source, author, dynasty, poetry, likes, used, enor, id = '' } = ctx.request.body
     author = author === '' ? '佚名' : author
     if (id !== '') {
       // 更新
-      await query(`UPDATE name_word SET mean = ?, feature = ?, source = ?, author = ?, dynasty = ?, poetry = ?, likes = ?, used = ? WHERE id = ?`, [
-        mean,
-        feature,
-        source,
-        author,
-        dynasty,
-        poetry,
-        likes,
-        used,
-        id
-      ])
+      await query(
+        `UPDATE name_word SET mean = ?, feature = ?, source = ?, author = ?, dynasty = ?, poetry = ?, likes = ?, used = ?, enor = ? WHERE id = ?`,
+        [mean, feature, source, author, dynasty, poetry, likes, used, enor, id]
+      )
       ctx.body = { message: '更新成功' }
       return
     }
@@ -58,8 +51,8 @@ router.post('/addWord', async ctx => {
       return
     }
     await query(
-      `INSERT INTO name_word (id, word, mean, feature, source, author, dynasty, poetry, likes, used, length, createtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [shortid(), word, mean, feature, source, author, dynasty, poetry, likes, used, word.length, Date.now()]
+      `INSERT INTO name_word (id, word, mean, feature, source, author, dynasty, poetry, likes, used, enor, length, createtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [shortid(), word, mean, feature, source, author, dynasty, poetry, likes, used, enor, word.length, Date.now()]
     )
     ctx.body = { message: '添加成功' }
   } catch (err) {
@@ -67,7 +60,7 @@ router.post('/addWord', async ctx => {
   }
 })
 
-// 删除汉字
+// 删除词组
 router.post('/delWord', async ctx => {
   const userInfo = checkToken(ctx)
   if (!userInfo) {
@@ -157,10 +150,6 @@ router.post('/delChinese', async ctx => {
 
 // 获取诗词
 router.get('/getPoetry', async ctx => {
-  const userInfo = checkToken(ctx)
-  if (!userInfo) {
-    return
-  }
   try {
     let { pageNo = 1, pageSize = 20, title = '', author = '', verse = '' } = ctx.request.query
     let where = `WHERE ${title === '' ? true : `title LIKE '%${title}%'`} AND ${author === '' ? true : `author LIKE '%${author}%'`} AND ${
@@ -321,11 +310,21 @@ router.post('/delArticle', async ctx => {
 // 读取文章内容
 router.get('/getArticleFile', async ctx => {
   try {
-    let { title } = ctx.request.query
-    let res = fs.readFileSync(path.join(filePath, `${title}.html`), 'utf-8')
-    ctx.body = { data: res }
+    let { title, id, tab } = ctx.request.query
+    let poetry, article
+    if (tab === '0') {
+      poetry = (await query(`SELECT * FROM name_poetry WHERE id = ? AND off != 1`, [id]))[0]
+      try {
+        article = fs.readFileSync(path.join(filePath, `古诗词_${title}.html`), 'utf-8')
+      } catch (err) {
+        article = ''
+      }
+    } else {
+      article = fs.readFileSync(path.join(filePath, `${title}.html`), 'utf-8')
+    }
+    ctx.body = { poetry, article }
   } catch (err) {
-    ctx.body = { data: '' }
+    ctx.body = { article: '' }
     // throw new Error(err)
   }
 })
@@ -334,12 +333,61 @@ function writeFile(content, filename) {
   fs.writeFileSync(path.join(filePath, `${filename}.html`), content, 'utf-8')
 }
 
-// 生成名字
+// 小程序获取诗文列表
+router.get('/getWxArticle', async ctx => {
+  try {
+    let { pageNo = 1, pageSize = 10, tab, condition = '' } = ctx.request.query
+    let res, where, count
+    switch (tab) {
+      case '0':
+        // 古诗文
+        where = `WHERE ${condition === '' ? true : `title LIKE '%${condition}%' OR author LIKE '%${condition}%' OR verse LIKE '%${condition}%'`}`
+        res = await query(`SELECT * FROM name_poetry ${where} AND off != 1 ORDER BY createtime ASC LIMIT ${(pageNo - 1) * pageSize}, ${pageSize}`)
+        count = (await query(`SELECT COUNT(*) as count FROM name_poetry ${where} AND off != 1`)) || [{ count: 0 }]
+        break
+      case '1':
+        // 姓氏起源
+        where = `WHERE title LIKE '%姓氏起源%' AND ${condition === '' ? true : `title LIKE '%${condition}%' OR summary LIKE '%${condition}%'`}`
+        res = await query(`SELECT * FROM name_article ${where} AND off != 1 ORDER BY createtime ASC LIMIT ${(pageNo - 1) * pageSize}, ${pageSize}`)
+        count = (await query(`SELECT COUNT(*) as count FROM name_article ${where} AND off != 1`)) || [{ count: 0 }]
+        break
+      case '2':
+        // 其他文章
+        where = `WHERE title NOT LIKE '%姓氏起源%' AND ${condition === '' ? true : `title LIKE '%${condition}%' OR summary LIKE '%${condition}%'`}`
+        res = await query(`SELECT * FROM name_article ${where} AND off != 1 ORDER BY createtime ASC LIMIT ${(pageNo - 1) * pageSize}, ${pageSize}`)
+        count = (await query(`SELECT COUNT(*) as count FROM name_article ${where} AND off != 1`)) || [{ count: 0 }]
+        break
+    }
+    ctx.body = { data: res, count: count[0].count }
+  } catch (err) {
+    throw new Error(err)
+  }
+})
+
+// 小程序生成名字
 router.post('/createName', async ctx => {
   try {
-    let { exceptList = [], surname, userd, length, feature } = ctx.request.body
+    let { pageNo = 1, pageSize = 10, exceptList = [], surname, used, length, feature, tab } = ctx.request.body
+    if (tab !== undefined && tab !== '0') {
+      let where = ''
+      switch (tab) {
+        case '1': // 社交
+          where = `WHERE used = 3`
+          break
+        case '2': // 游戏
+          where = `WHERE used = 2`
+          break
+        case '3': // 英文
+          where = `WHERE enor = 1`
+          break
+      }
+      let count = (await query(`SELECT COUNT(*) as count FROM name_word ${where} AND off != 1`))[0].count
+      let result = await query(`SELECT * FROM name_word ${where} AND off != 1 ORDER BY createtime ASC LIMIT ${(pageNo - 1) * pageSize}, ${pageSize}`)
+      ctx.body = { data: result, count: count }
+      return
+    }
     let count = (await query(`SELECT COUNT(*) as count FROM name_word WHERE off != 1`))[0].count
-    let result = await getRandWord(exceptList, count)
+    let result = await getRandWord(exceptList, count, used, length, feature)
     // 获取拼音
     for (let i = 0, len = result.length; i < len; i++) {
       let word = result[i].word,
@@ -376,31 +424,52 @@ router.post('/createName', async ctx => {
  * 随机取数据
  * @param {Array} exceptList 已获取数据，在 sql 语句中排除掉
  * @param {Number} count 数据库数据总数
+ * @param {String} used 0: 女孩 1：男孩 01：男女 2：网游 3：社交
  */
-async function getRandWord(exceptList, count) {
+async function getRandWord(exceptList, count, used, length, feature) {
   let pageSize = 10,
     exceptStr = '',
     data = []
   if (exceptList.length === count) {
     let poetry = await query(`SELECT * FROM name_poetry ORDER BY rand() LIMIT ${pageSize}`)
-    data = data.concat(await filterPoetry(poetry))
+    data = data.concat(await filterPoetry(poetry, length))
     return data
   }
   exceptList.forEach(ele => {
     exceptStr += `"${ele}", `
   })
   exceptStr = exceptStr.substr(0, exceptStr.length - 2)
-  let where = `WHERE ${exceptList.length === 0 ? true : `id NOT IN (${exceptStr})`}`
-  let res = await query(`SELECT * FROM name_word ${where} ORDER BY rand() LIMIT ${pageSize}`)
+  let where = `WHERE ${exceptList.length === 0 ? true : `id NOT IN (${exceptStr})`} AND length = ${length} AND used LIKE '%${used}%'`
+  let res = [],
+    featureLen = 0
+  // 若输入了特征，先查询特征词
+  if (feature !== '') {
+    res = await query(`SELECT * FROM name_word ${where} AND feature LIKE '%${feature}%' ORDER BY rand() LIMIT ${pageSize}`)
+    if (res.length !== 0) {
+      featureLen = res.length
+      for (let i = 0, len = res.length; i < len; i++) {
+        exceptList.push(res[i].id)
+        data.push(res[i])
+      }
+      exceptStr = ''
+      exceptList.forEach(ele => {
+        exceptStr += `"${ele}", `
+      })
+      exceptStr = exceptStr.substr(0, exceptStr.length - 2)
+      where = `WHERE ${exceptList.length === 0 ? true : `id NOT IN (${exceptStr})`} AND length = ${length} AND used LIKE '%${used}%'`
+    }
+  }
+
+  res = await query(`SELECT * FROM name_word ${where} ORDER BY rand() LIMIT ${pageSize - featureLen}`)
   for (let i = 0, len = res.length; i < len; i++) {
     exceptList.push(res[i].id)
     data.push(res[i])
   }
   // word 表数据已获取完，若还有剩下，再接着获取古诗词，从中拆分出 word
-  if (res.length < pageSize) {
-    let rest = pageSize - res.length
+  if (res.length < pageSize - featureLen) {
+    let rest = pageSize - featureLen - res.length
     let poetry = await query(`SELECT * FROM name_poetry ORDER BY rand() LIMIT ${rest}`)
-    data = data.concat(await filterPoetry(poetry))
+    data = data.concat(await filterPoetry(poetry, length))
   }
   return data
 }
@@ -408,13 +477,13 @@ async function getRandWord(exceptList, count) {
 /**
  * 从古诗中随机取出词组
  */
-async function filterPoetry(poetryList) {
+async function filterPoetry(poetryList, length) {
   let data = []
   for (let i = 0, len = poetryList.length; i < len; i++) {
     let contentArr = poetryList[i].verse.split('\n')
     let content = contentArr[random(0, contentArr.length - 1)]
     data.push({
-      word: content[0] + content[1],
+      word: content[0] + (length == 2 ? content[1] : ''),
       mean: '',
       source: content,
       author: poetryList[i].author,

@@ -19,6 +19,13 @@
           <el-option label="社交" value="3"></el-option>
         </el-select>
       </div>
+      <div class="search-item">
+        <el-select v-model="searchConds.enor" placeholder="请选择">
+          <el-option label="全部" value=""></el-option>
+          <el-option label="英文名" value="1"></el-option>
+          <el-option label="非英文名" value="0"></el-option>
+        </el-select>
+      </div>
     </Search>
     <base-table
       ref="baseTable"
@@ -67,8 +74,8 @@ export default {
         { field: 'mean', label: '含义', nodeType: 'textarea', rows: 5, hideField: true },
         { field: 'feature', label: '特征' },
         { field: 'source', label: '出处', nodeType: 'textarea', rows: 5 },
-        { field: 'author', label: '作者', width: 100 },
-        { field: 'dynasty', label: '朝代', width: 50 },
+        { field: 'author', label: '作者', width: 100, hideField: true },
+        { field: 'dynasty', label: '朝代', width: 50, hideField: true },
         { field: 'poetry', label: '诗名' },
         { field: 'likes', label: '点赞量', nodeType: 'number', hideField: true },
         {
@@ -86,6 +93,18 @@ export default {
             { value: '3', label: '社交' }
           ],
           width: 50
+        },
+        {
+          field: 'enor',
+          label: '是否英文名',
+          default: '0',
+          showField: 'enorm',
+          nodeType: 'select',
+          options: [
+            { value: '0', label: '否' },
+            { value: '1', label: '是' }
+          ],
+          width: 100
         }
       ],
       tableData: [],
@@ -93,7 +112,8 @@ export default {
         word: '',
         author: '',
         poetry: '',
-        used: ''
+        used: '',
+        enor: ''
       },
       usedMap: {
         '-1': '',
@@ -115,6 +135,7 @@ export default {
         res.data.data.forEach((ele, index) => {
           res.data.data[index].used = ele.used === null ? '-1' : ele.used
           res.data.data[index].usedm = this.usedMap[ele.used]
+          res.data.data[index].enorm = ele.enor == '1' ? '是' : '否'
         })
         this.tableData = res.data.data
         this.total = res.data.count
