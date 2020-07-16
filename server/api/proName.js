@@ -14,7 +14,7 @@ router.get('/getWord', async ctx => {
     return
   }
   try {
-    let { pageNo = 1, pageSize = 20, word = '', author = '', poetry = '', used = '', enor } = ctx.request.query
+    let { pageNo = 1, pageSize = 20, word = '', author = '', poetry = '', used = '', enor = '' } = ctx.request.query
     let where = `WHERE ${word === '' ? true : `word LIKE '%${word}%'`} AND ${author === '' ? true : `author LIKE '%${author}%'`} AND ${
       poetry === '' ? true : `poetry LIKE '%${poetry}%'`
     } AND ${used === '' ? true : `used LIKE '%${used}%'`} AND ${enor === '' ? true : `enor LIKE '%${enor}%'`}`
@@ -300,8 +300,22 @@ router.post('/delArticle', async ctx => {
     let res = await query(`SELECT * FROM name_article WHERE id = ?`, [id])
     let title = res[0].title
     await query(`UPDATE name_article SET off = 1 WHERE id = ?`, [id])
-    fs.renameSync(path.join(filePath, `${title}.html`), path.join(filePath, `off_${title}.html`))
+    try {
+      fs.renameSync(path.join(filePath, `${title}.html`), path.join(filePath, `off_${title}.html`))
+    } catch (err) {
+      console.log(err)
+    }
     ctx.body = { message: '删除成功' }
+  } catch (err) {
+    throw new Error(err)
+  }
+})
+
+// 微信小程序主页获取随机文章列表
+router.get('/getRandArticle', async ctx => {
+  try {
+    let res = await query(`SELECT a.*, t.name as tagm FROM name_article a, name_tag t WHERE a.tag = t.id AND a.off != 1 ORDER BY rand() LIMIT 20`)
+    ctx.body = { data: res }
   } catch (err) {
     throw new Error(err)
   }

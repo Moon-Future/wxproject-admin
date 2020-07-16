@@ -60,7 +60,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  mode: 'history',
+  // mode: 'history',
   base: process.env.BASE_URL,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition || (to.matched[0] && from.matched[0] && to.matched[0].path === from.matched[0].path)) {

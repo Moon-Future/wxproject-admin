@@ -21,6 +21,7 @@
       :total="total"
       :pageNo="pageNo"
       :pageSize="pageSize"
+      editEmit
       width="80%"
       @changeSize="changeSize"
       @changeNo="changeNo"
@@ -116,9 +117,11 @@ export default {
     },
     async handleEdit({ index, callback }) {
       try {
+        this.loading = true
         let row = this.tableData[index]
         let res = await API.getArticleFile({ title: row.title })
-        callback({ content: res.data.data })
+        this.loading = false
+        callback({ content: res.data.article })
       } catch (error) {
         console.log(error)
       }

@@ -106,4 +106,30 @@ async function importPoetry() {
   console.log(duplObj)
 }
 
+// 导入姓氏文章
+async function importSurname() {
+  const filename = 'surname.txt'
+  let filecontent = JSON.parse(fs.readFileSync(path.join(__dirname, filename), 'utf-8'))
+  let startTime = new Date()
+  for (let key in filecontent) {
+    let id = shortid()
+    let obj = filecontent[key]
+    let surname = key
+    let title = obj.t
+    let img = obj.i
+    console.log(`正在导入【${surname}】，用时【${dateFormat(startTime, 'hh:mm')}，${(Date.now() - startTime) / 1000} s】`)
+    await query(`INSERT INTO name_article (id, title, author, summary, tag, img, date, createtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [
+      id,
+      title,
+      '取名通',
+      `【${surname}】氏渊源`,
+      '1',
+      img,
+      new Date().getTime(),
+      Date.now()
+    ])
+  }
+}
+
+importSurname()
 // importPoetry()

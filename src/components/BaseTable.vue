@@ -129,6 +129,10 @@ export default {
     pageSize: {
       type: Number,
       default: 20
+    },
+    editEmit: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -181,23 +185,35 @@ export default {
     },
     handleEdit(index, row, scope) {
       let self = this
-      this.$emit('handleEdit', {
-        index: index,
-        callback: function(res) {
-          self.row = row
-          for (let key in res) {
-            self.row[key] = res[key]
-          }
-          for (let key in self.formData) {
-            if (typeof row[key] === 'string' && row[key].indexOf('</br>') !== -1) {
-              self.$set(self.formData, key, row[key].replace(new RegExp('</br>', 'g'), '\n'))
-            } else {
-              self.$set(self.formData, key, row[key])
+      if (this.editEmit) {
+        this.$emit('handleEdit', {
+          index: index,
+          callback: (res) => {
+            this.row = row
+            for (let key in res) {
+              this.row[key] = res[key]
             }
+            for (let key in this.formData) {
+              if (typeof row[key] === 'string' && row[key].indexOf('</br>') !== -1) {
+                this.$set(this.formData, key, row[key].replace(new RegExp('</br>', 'g'), '\n'))
+              } else {
+                this.$set(this.formData, key, row[key])
+              }
+            }
+            this.edit = true
           }
-          self.edit = true
+        })
+      } else {
+        for (let key in this.formData) {
+          if (typeof row[key] === 'string' && row[key].indexOf('</br>') !== -1) {
+            this.$set(this.formData, key, row[key].replace(new RegExp('</br>', 'g'), '\n'))
+          } else {
+            this.$set(this.formData, key, row[key])
+          }
         }
-      })
+        this.row = row
+        this.edit = true
+      }
     },
     handleDelete(index, row) {
       this.$confirm('是否删除?', '提示', {
