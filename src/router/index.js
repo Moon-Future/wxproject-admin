@@ -21,7 +21,7 @@ const routes = [
         meta: {
           requireAuth: true
         },
-        component: () => import('@/views/ProName/Chinese.vue')
+        component: () => import('@/views/proName/Chinese.vue')
       },
       {
         path: '/proname/word',
@@ -29,7 +29,7 @@ const routes = [
         meta: {
           requireAuth: true
         },
-        component: () => import('@/views/ProName/Word.vue')
+        component: () => import('@/views/proName/Word.vue')
       },
       {
         path: '/proname/poetry',
@@ -37,7 +37,7 @@ const routes = [
         meta: {
           requireAuth: true
         },
-        component: () => import('@/views/ProName/Poetry.vue')
+        component: () => import('@/views/proName/Poetry.vue')
       },
       {
         path: '/proname/article',
@@ -45,7 +45,23 @@ const routes = [
         meta: {
           requireAuth: true
         },
-        component: () => import('@/views/ProName/Article.vue')
+        component: () => import('@/views/proName/Article.vue')
+      },
+      {
+        path: '/lottery/colorball',
+        name: 'colorBall',
+        meta: {
+          requireAuth: true
+        },
+        component: () => import('@/views/lottery/colorBall.vue')
+      },
+      {
+        path: '/lottery/superlotto',
+        name: 'superLotto',
+        meta: {
+          requireAuth: true
+        },
+        component: () => import('@/views/lottery/superLotto.vue')
       }
     ]
   },

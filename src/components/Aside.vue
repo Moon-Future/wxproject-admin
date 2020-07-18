@@ -52,6 +52,21 @@ export default {
           ]
         },
         {
+          // icon: 'el-icon-menu',
+          index: '2',
+          title: '彩票',
+          subs: [
+            {
+              index: '/lottery/colorball',
+              title: '双色球'
+            },
+            {
+              index: '/lottery/superlotto',
+              title: '大乐透'
+            }
+          ]
+        },
+        {
           index: '/login',
           title: '退出'
         }

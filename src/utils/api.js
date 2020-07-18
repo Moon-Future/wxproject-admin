@@ -23,7 +23,12 @@ export const URL = {
   getArticle: '/api/proname/getArticle',
   addArticle: '/api/proname/addArticle',
   delArticle: '/api/proname/delArticle',
-  getArticleFile: '/api/proname/getArticleFile'
+  getArticleFile: '/api/proname/getArticleFile',
+
+  // 彩票
+  getLottery: '/api/lottery/getLottery',
+  addLottery: '/api/lottery/addLottery',
+  delLottery: '/api/lottery/delLottery'
 }
 
 const API = {
@@ -93,6 +98,18 @@ const API = {
 
   getArticleFile(params = {}) {
     return http.get(URL.getArticleFile, { params })
+  },
+
+  getLottery(params = {}) {
+    return http.get(URL.getLottery, { params })
+  },
+
+  addLottery(data) {
+    return http.post(URL.addLottery, data)
+  },
+
+  delLottery(data) {
+    return http.post(URL.delLottery, data)
   }
 }
 

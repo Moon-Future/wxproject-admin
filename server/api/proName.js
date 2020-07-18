@@ -504,17 +504,22 @@ async function filterPoetry(poetryList, length) {
     })
     let content = contentArr[random(0, contentArr.length - 1)]
     let soruce = content
-    let n = '胸鬼懒禽鸟鸡我邪罪凶丑仇鼠蟋蟀淫秽妹狐鸡鸭蝇悔鱼肉苦犬吠窥血丧饥女搔父母昏狗蟊疾病痛死潦哀痒害蛇牲妇狸鹅穴畜烂兽靡爪氓劫鬣螽毛婚姻匪婆羞辱'.split('')
+    let n = '胸鬼懒禽鸟鸡我邪罪凶丑仇鼠蟋蟀淫秽妹狐鸡鸭蝇悔鱼肉苦犬吠窥血丧饥女搔父母昏狗蟊疾病痛死潦哀痒害蛇牲妇狸鹅穴畜烂兽靡爪氓劫鬣螽毛婚姻匪婆羞辱'.split(
+      ''
+    )
     content = content.replace(/[<>《》！*\/\(\^\)\$%~!@#…&%￥—\+=、。，？；‘’“”：·`]/g, '')
-    content = content.split('').filter(function(e) {
-      return -1 === n.indexOf(e)
-    }).join('')
+    content = content
+      .split('')
+      .filter(function(e) {
+        return -1 === n.indexOf(e)
+      })
+      .join('')
     let num1 = random(0, content.length - 1)
     let num2
     let word = content[num1]
     if (length == 2) {
       num2 = random(0, content.length - 1)
-      while(num2 === num1 && content.length > 1) {
+      while (num2 === num1 && content.length > 1) {
         num2 = random(0, content.length - 1)
       }
       word = num2 > num1 ? word + content[num2] : content[num2] + word
