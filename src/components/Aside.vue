@@ -62,7 +62,7 @@ export default {
             },
             {
               index: '/lottery/superlotto',
-              title: '大乐透'
+              title: '超级大乐透'
             }
           ]
         },

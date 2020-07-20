@@ -1,6 +1,23 @@
 const query = require('../database/init')
 const jwt = require('jsonwebtoken')
 const { tokenConfig, githubConfig } = require('../secret/code')
+const request = require('request')
+
+function ajax(opts) {
+  return new Promise((resolve, reject) => {
+    request(opts, function(err, response, body) {
+      if (err) {
+        reject(err)
+      } else {
+        try {
+          resolve(JSON.parse(body))
+        } catch (error) {
+          resolve(body)
+        }
+      }
+    })
+  })
+}
 
 // 验证是否登陆
 function checkToken(ctx) {
@@ -51,4 +68,4 @@ function random(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-module.exports = { checkToken, dateFormat, createId, random }
+module.exports = { checkToken, dateFormat, createId, random, ajax }

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <select-ball redNum="35" blueNum="12" redLen="5" blueLen="2" type="2"></select-ball>
+    <select-ball :redNum="35" :blueNum="12" :redLen="5" :blueLen="2" :type="2"></select-ball>
   </div>
 </template>
 

@@ -5,7 +5,7 @@
         <template v-for="(item, index) in fields">
           <el-table-column v-if="!item.hideField" :prop="item.field" :label="item.label" :width="item.width || 'initial'" :key="index">
             <template slot-scope="scope">
-              <img class="article-img" :src="scope.row[item.showField || item.field]" alt="" v-if="item.tableNodeType === 'img'">
+              <img class="article-img" :src="scope.row[item.showField || item.field]" alt="" v-if="item.tableNodeType === 'img'" />
               <div v-html="scope.row[item.showField || item.field]" v-else></div>
             </template>
           </el-table-column>
@@ -188,7 +188,7 @@ export default {
       if (this.editEmit) {
         this.$emit('handleEdit', {
           index: index,
-          callback: (res) => {
+          callback: res => {
             this.row = row
             for (let key in res) {
               this.row[key] = res[key]

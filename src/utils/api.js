@@ -28,7 +28,11 @@ export const URL = {
   // 彩票
   getLottery: '/api/lottery/getLottery',
   addLottery: '/api/lottery/addLottery',
-  delLottery: '/api/lottery/delLottery'
+  delLottery: '/api/lottery/delLottery',
+
+  // 获取开奖信息
+  getLotteryData: '/api/lottery/getLotteryData',
+  getLotteryRecent: '/api/lottery/getLotteryRecent'
 }
 
 const API = {
@@ -110,6 +114,14 @@ const API = {
 
   delLottery(data) {
     return http.post(URL.delLottery, data)
+  },
+
+  getLotteryData(params = {}) {
+    return http.get(URL.getLotteryData, { params })
+  },
+
+  getLotteryRecent(params = {}) {
+    return http.get(URL.getLotteryRecent, { params })
   }
 }
 
