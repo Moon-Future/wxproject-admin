@@ -7,6 +7,20 @@ const path = require('path')
 const fs = require('fs')
 let filePath = path.join(__dirname, '../../article/proname')
 
+// 获取名字
+router.get('/getNameList', async ctx => {
+  try {
+    let { pageNo = 1, pageSize = 20 } = ctx.request.query
+    // 男生，女生名，不包含英文名
+    let where = 'WHERE (used = 0 OR used = 1) AND enor = 0 AND off != 1'
+    let count = await query(`SELECT COUNT(*) as count FROM name_word ${where}`)
+    let res = await query(`SELECT * FROM name_word ${where} ORDER BY createtime ASC LIMIT ${(pageNo - 1) * pageSize}, ${pageSize}`)
+    ctx.body = { data: res, count: count[0].count }
+  } catch (err) {
+    throw new Error(err)
+  }
+})
+
 // 获取词组
 router.get('/getWord', async ctx => {
   const userInfo = checkToken(ctx)

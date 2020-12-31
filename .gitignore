@@ -2,6 +2,7 @@
 node_modules
 /dist
 /server/secret
+secret.js
 
 # local env files
 .env.local
@@ -20,3 +21,19 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+
+logs/
+npm-debug.log
+yarn-error.log
+node_modules/
+package-lock.json
+yarn.lock
+coverage/
+.idea/
+run/
+.DS_Store
+*.sw*
+*.un~
+typings/
+.nyc_output/
