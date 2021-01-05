@@ -4,5 +4,5 @@ module.exports = function(router, controller) {
   router.post('/api/wxName/getWxArticle/', controller.wxName.index.getWxArticle);
   router.post('/api/wxName/getArticleFile/', controller.wxName.index.getArticleFile);
 
-  router.get('/api/wxName/createName/', controller.wxName.create.createName);
+  router.post('/api/wxName/createName/', controller.wxName.create.createName);
 }

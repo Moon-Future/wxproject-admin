@@ -1,7 +1,7 @@
 'use strict';
 const path = require('path')
 const fs = require('fs')
-const filePath = path.join(__dirname, '../../article/proname')
+const filePath = path.join(__dirname, '../../../../article/proname')
 
 const Controller = require('egg').Controller;
 
@@ -69,7 +69,7 @@ class HomeController extends Controller {
    */
   async getArticleFile() {
     const { ctx, app } = this
-    const { title, id, tab } = ctx.request.body
+    let { title, id, tab } = ctx.request.body
     let poetry, article
     if (title.indexOf('/') !== -1) {
       title = title.replace(/\//g, '^')
