@@ -27,7 +27,15 @@
       @changeNo="changeNo"
       @refreshData="refreshData"
       @handleEdit="handleEdit"
-    ></base-table>
+    >
+      <template slot="table-action" slot-scope="{ data }">
+        <el-button size="mini" type="primary" @click="preview(data)">预览</el-button>
+      </template>
+    </base-table>
+
+    <el-dialog :title="previewData.title" :visible.sync="previewData.visible" fullscreen>
+      <div class="preview-content" v-html="previewData.content"></div>
+    </el-dialog>
   </div>
 </template>
 
@@ -73,10 +81,30 @@ export default {
       },
       tags: [],
       tagMap: {},
-      tagInit: false
+      tagInit: false,
+      previewData: {
+        visible: false,
+        title: '',
+        content: ''
+      }
     }
   },
   methods: {
+    async preview(row) {
+      try {
+        this.loading = true
+        let res = await API.getArticleFile({ title: row.title })
+        this.previewData = {
+          visible: true,
+          title: row.title,
+          content: res.data.article
+        }
+        console.log(res)
+        this.loading = false
+      } catch (error) {
+        this.loading = false
+      }
+    },
     async getTag() {
       try {
         let res = await API.getTag()
@@ -130,4 +158,11 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.preview-content {
+  text-align: left;
+  /deep/ p {
+    padding: 10px 0;
+  }
+}
+</style>

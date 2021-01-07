@@ -6,24 +6,24 @@ export const URL = {
   checkLogin: '/api/user/checkLogin',
 
   // 词组
-  getWord: '/api/proname/getWord',
-  addWord: '/api/proname/addWord',
-  delWord: '/api/proname/delWord',
+  getWord: '/api/wxName/getWord',
+  addWord: '/api/wxName/addWord',
+  delWord: '/api/wxName/delWord',
   // 汉字
-  getChinese: '/api/proname/getChinese',
-  addChinese: '/api/proname/addChinese',
-  delChinese: '/api/proname/delChinese',
+  getChinese: '/api/wxName/getChinese',
+  addChinese: '/api/wxName/addChinese',
+  delChinese: '/api/wxName/delChinese',
   // 诗词
-  getPoetry: '/api/proname/getPoetry',
-  addPoetry: '/api/proname/addPoetry',
-  delPoetry: '/api/proname/delPoetry',
+  getPoetry: '/api/wxName/getPoetry',
+  addPoetry: '/api/wxName/addPoetry',
+  delPoetry: '/api/wxName/delPoetry',
   // 获取文章标签
-  getTag: '/api/proname/getTag',
+  getTag: '/api/wxName/getTag',
   // 文章
-  getArticle: '/api/proname/getArticle',
-  addArticle: '/api/proname/addArticle',
-  delArticle: '/api/proname/delArticle',
-  getArticleFile: '/api/proname/getArticleFile',
+  getArticle: '/api/wxName/getArticle',
+  addArticle: '/api/wxName/addArticle',
+  delArticle: '/api/wxName/delArticle',
+  getArticleFile: '/api/wxName/getArticleFile',
 
   // 彩票
   getLottery: '/api/lottery/getLottery',
@@ -48,8 +48,8 @@ const API = {
     return http.post(URL.checkLogin)
   },
 
-  getWord(params = {}) {
-    return http.get(URL.getWord, { params })
+  getWord(data) {
+    return http.post(URL.getWord, data)
   },
 
   addWord(data) {
@@ -60,8 +60,8 @@ const API = {
     return http.post(URL.delWord, data)
   },
 
-  getChinese(params = {}) {
-    return http.get(URL.getChinese, { params })
+  getChinese(data) {
+    return http.post(URL.getChinese, data)
   },
 
   addChinese(data) {
@@ -72,8 +72,8 @@ const API = {
     return http.post(URL.delChinese, data)
   },
 
-  getPoetry(params = {}) {
-    return http.get(URL.getPoetry, { params })
+  getPoetry(data) {
+    return http.post(URL.getPoetry, data)
   },
 
   addPoetry(data) {
@@ -85,11 +85,11 @@ const API = {
   },
 
   getTag() {
-    return http.get(URL.getTag)
+    return http.post(URL.getTag)
   },
 
-  getArticle(params = {}) {
-    return http.get(URL.getArticle, { params })
+  getArticle(data) {
+    return http.post(URL.getArticle, data)
   },
 
   addArticle(data) {
@@ -100,12 +100,12 @@ const API = {
     return http.post(URL.delArticle, data)
   },
 
-  getArticleFile(params = {}) {
-    return http.get(URL.getArticleFile, { params })
+  getArticleFile(data) {
+    return http.post(URL.getArticleFile, data)
   },
 
-  getLottery(params = {}) {
-    return http.get(URL.getLottery, { params })
+  getLottery(data) {
+    return http.post(URL.getLottery, data)
   },
 
   addLottery(data) {
@@ -116,12 +116,12 @@ const API = {
     return http.post(URL.delLottery, data)
   },
 
-  getLotteryData(params = {}) {
-    return http.get(URL.getLotteryData, { params })
+  getLotteryData(data) {
+    return http.post(URL.getLotteryData, data)
   },
 
-  getLotteryRecent(params = {}) {
-    return http.get(URL.getLotteryRecent, { params })
+  getLotteryRecent(data) {
+    return http.post(URL.getLotteryRecent, data)
   }
 }
 

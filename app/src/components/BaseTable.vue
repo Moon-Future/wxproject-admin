@@ -10,8 +10,9 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column label="操作" width="150">
+        <el-table-column label="操作" min-width="150">
           <template slot-scope="scope">
+            <slot name="table-action" :data="scope.row"></slot>
             <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
             <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
           </template>
@@ -171,6 +172,9 @@ export default {
     this.iniFormData()
   },
   methods: {
+    actionClick(e) {
+      console.log(e)
+    },
     // 富文本
     onEditorBlur(quill) {},
     onEditorFocus(quill) {},

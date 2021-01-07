@@ -70,7 +70,7 @@ export default {
       url: 'addWord',
       delUrl: 'delWord',
       fields: [
-        { field: 'word', label: '词语', width: 50, required: true, disabled: true },
+        { field: 'word', label: '词语', width: 80, required: true, disabled: true },
         { field: 'mean', label: '含义', nodeType: 'textarea', rows: 5, hideField: true },
         { field: 'feature', label: '特征' },
         { field: 'source', label: '出处', nodeType: 'textarea', rows: 5 },
