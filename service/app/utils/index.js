@@ -1,9 +1,10 @@
 const jwt = require('jsonwebtoken')
-const { tokenConfig } = require('../../config/secret')
+const COS = require('cos-nodejs-sdk-v5')
+const { tokenConfig, tencentCloud } = require('../../config/secret')
 
 function ajax(opts) {
   return new Promise((resolve, reject) => {
-    request(opts, function(err, response, body) {
+    request(opts, function (err, response, body) {
       if (err) {
         reject(err)
       } else {
@@ -42,7 +43,7 @@ function dateFormat(date, format) {
     'd+': date.getDate(),
     'h+': date.getHours(),
     'm+': date.getMinutes(),
-    's+': date.getSeconds()
+    's+': date.getSeconds(),
   }
   if (/(y+)/i.test(format)) {
     format = format.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length))
@@ -57,13 +58,36 @@ function dateFormat(date, format) {
 
 // 随机生成数字 ID
 function createId(len = 6) {
-  return Math.random()
-    .toString()
-    .slice(-len)
+  return Math.random().toString().slice(-len)
 }
 
 function random(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-module.exports = { checkToken, dateFormat, createId, random, ajax }
+// 创建实例
+const cos = new COS({
+  SecretId: tencentCloud.SecretId,
+  SecretKey: tencentCloud.SecretKey,
+})
+
+const cosUpload = function (fileName, filePath) {
+  // 分片上传
+  return new Promise((resolve, reject) => {
+    cos.sliceUploadFile(
+      {
+        Bucket: tencentCloud.missLoveBucket,
+        Region: 'ap-guangzhou',
+        Key: fileName,
+        FilePath: filePath,
+      },
+      function (err, data) {
+        console.log('err', err)
+        console.log('data', data)
+        resolve(data)
+      }
+    )
+  })
+}
+
+module.exports = { checkToken, dateFormat, createId, random, ajax, cosUpload }

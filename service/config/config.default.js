@@ -1,30 +1,30 @@
 /* eslint valid-jsdoc: "off" */
 
-'use strict';
+'use strict'
 const { mysql } = require('./secret')
 
 /**
  * @param {Egg.EggAppInfo} appInfo app info
  */
-module.exports = appInfo => {
+module.exports = (appInfo) => {
   /**
    * built-in config
    * @type {Egg.EggAppConfig}
    **/
-  const config = exports = {};
+  const config = (exports = {})
 
   // use for cookie sign key, should change to your own and keep security
-  config.keys = appInfo.name + '_1609307136236_1096';
+  config.keys = appInfo.name + '_1609307136236_1096'
 
   // add your middleware config here
-  config.middleware = [];
+  config.middleware = []
 
   config.cluster = {
     listen: {
-      port: 5555
-    }
+      port: 5555,
+    },
   }
-  
+
   // 连接mysql
   config.mysql = {
     // database configuration
@@ -58,13 +58,17 @@ module.exports = appInfo => {
     allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS',
   }
 
+  config.multipart = {
+    mode: 'file',
+  }
+
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
-  };
+  }
 
   return {
     ...config,
     ...userConfig,
-  };
-};
+  }
+}
