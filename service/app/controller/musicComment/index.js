@@ -69,6 +69,38 @@ class HomeController extends Controller {
     ctx.body = { songs }
   }
 
+  // 处理歌曲
+  async handleSongs() {
+    const { ctx, app } = this
+    let songs = await app.mysql.query(`SELECT * FROM music_songs`)
+    let obj = {}, del = []
+    for (let i = 0, len = songs.length; i < len; i++) {
+      let song = songs[i]
+      let { id, uuid, artistId, artistName } = song
+      if (obj[id]) {
+        del.push(uuid)
+        obj[id].data.artistName += `/${artistName}`
+        obj[id].data.artistId += `/${artistId}`
+        obj[id].count++
+      } else {
+        obj[id] = {
+          count: 1,
+          data: song
+        }
+      }
+    }
+    for (let key in obj) {
+      let item = obj[key]
+      if (item.count > 1) {
+        await app.mysql.query(`UPDATE music_songs SET artistId = ?, artistName = ? WHERE uuid = ?`, [item.data.artistId, item.data.artistName, item.uuid])
+      }
+    }
+    for (let i = 0, len = del.length; i < len; i++) {
+      await app.mysql.query(`DELETE FROM music_songs WHERE uuid = ?`, [del[i]])
+    }
+    ctx.body = 'ok'
+  }
+
   // 热门评论
   async getHotComments() {
     const { ctx, app } = this
@@ -106,11 +138,12 @@ class HomeController extends Controller {
   async getCommentCount() {
     const { ctx, app } = this
     let songs = await app.mysql.query(`SELECT * FROM music_songs`)
-    let start = 22401, startTime = Date.now()
+    let start = 0, startTime = Date.now()
     for (let i = start, len = songs.length; i < len; i++) {
       let endTime = Date.now()
       console.log(len, i, utils.dateFormat(startTime, 'hh:mm'), utils.dateFormat(endTime, 'hh:mm'))
       let song = songs[i]
+      if (song.commentCount !== null) continue
       let count = await API.getCommentCount(song.id)
       await app.mysql.query(`UPDATE music_songs SET commentCount = ? WHERE id = ?`, [count, song.id])
 
@@ -120,7 +153,7 @@ class HomeController extends Controller {
         let item = hotComments[j]
         let user = item.user
         let beReplied = item.beReplied && item.beReplied[0] || { id: null, userId: null, userType: null, nickname: '', avatar: '', content: '' }
-        if (item.likedCount < 10000) continue
+        if (item.likedCount < 1000) continue
         try {
           await app.mysql.query(`INSERT INTO music_hotcomments (id, content, time, likedCount, userId, userType, nickname, avatar, beRepliedId, beRepliedUserId, 
             beRepliedUserType, beRepliedNickname, beRepliedAvatar, beRepliedContent, songId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
