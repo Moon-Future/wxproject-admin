@@ -31,5 +31,11 @@ module.exports = {
   async getCommentCount(id) {
     const result = await axios.get(`${HOST}/comment/music?id=${id}&limit=1`)
     return result.data.total
+  },
+
+  // 获取歌词
+  async getLyric(id) {
+    const result = await axios.get(`${HOST}/lyric?id=${id}`)
+    return result.data.lrc.lyric
   }
 }

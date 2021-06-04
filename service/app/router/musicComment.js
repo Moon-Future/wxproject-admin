@@ -9,4 +9,6 @@ module.exports = function(router, controller) {
 
   router.post('/api/music/getHotComments', controller.musicComment.music.getHotComments);
   router.post('/api/music/getHotMusic', controller.musicComment.music.getHotMusic);
+  router.post('/api/music/getLyric', controller.musicComment.music.getLyric);
+  router.post('/api/music/getSongInfo', controller.musicComment.music.getSongInfo);
 }

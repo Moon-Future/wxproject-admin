@@ -20,6 +20,41 @@ class HomeController extends Controller {
 
     ctx.body = { data: result }
   }
+
+  async getLyric() {
+    const { ctx, app } = this
+    const lyric = await API.getLyric('411214279')
+    ctx.body = { lyric }
+  }
+
+  async getSongInfo() {
+    const { ctx, app } = this
+    try {
+      const { songId } = ctx.request.body
+      const songInfo = await app.mysql.query(`SELECT s.*, a.picUrl as avatar FROM music_songs s, music_artist a WHERE s.artistId = a.id AND s.id = ?`, [songId])
+      if (songInfo.length === 0) {
+        ctx.body = { status: 400, message: '未找到歌曲' }
+        return
+      } 
+      const lyric = await API.getLyric(songId)
+      songInfo[0].lyric = lyric
+      ctx.body = { status: 200, data: songInfo[0] }
+    } catch (err) {
+      throw new Error(err)
+    }
+  }
+
+  async getComments() {
+    const { ctx, app } = this
+    try {
+      const { songId, pageNo, pageSize } = ctx.request.body
+      
+      
+      ctx.body = { status: 200, data: songInfo[0] }
+    } catch (err) {
+      throw new Error(err)
+    }
+  }
 }
 
 module.exports = HomeController

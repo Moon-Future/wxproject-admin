@@ -128,9 +128,8 @@ class HomeController extends Controller {
   // 评论
   async getComments() {
     const { ctx, app } = this
-    const limit = 30
-    let offset = 0
-    let comments = await API.getComments(411214279, 1, 20, 3)
+    const { songId, pageNo = 1, pageSize = 20 } = ctx.request.query
+    let comments = await API.getComments(songId, pageNo, pageSize, 3)
     ctx.body = { comments }
   }
 
