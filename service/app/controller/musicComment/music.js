@@ -48,8 +48,8 @@ class HomeController extends Controller {
     const { ctx, app } = this
     try {
       const { songId, pageNo, pageSize } = ctx.request.body
-      
-      
+      let comments = await API.getComments(songId, pageNo, pageSize, 3)
+
       ctx.body = { status: 200, data: songInfo[0] }
     } catch (err) {
       throw new Error(err)
