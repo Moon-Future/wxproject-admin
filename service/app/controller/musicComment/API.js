@@ -11,7 +11,7 @@ module.exports = {
   // 获取歌手歌曲列表
   async getSongs(id, limit = 30, offset = 0) {
     const result = await axios.get(`${HOST}/artist/songs?id=${id}&limit=${limit}&offset=${offset}`)
-    return result.data.songs
+    return result.data
   },
 
   // 获取歌曲热门评论

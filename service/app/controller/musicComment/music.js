@@ -9,16 +9,30 @@ const Controller = require('egg').Controller
 class HomeController extends Controller {
   async getHotComments() {
     const { ctx, app } = this
-    let result = await app.mysql.query(`SELECT c.*, s.name as songName, s.artistId, s.artistName FROM music_hotcomments c, music_songs s WHERE c.likedCount > 10000 AND c.songId = s.id ORDER BY c.likedCount DESC LIMIT 20`)
-
-    ctx.body = { data: result }
+    try {
+      const { pageNo = 1, pageSize = 20 } = ctx.request.body
+      let total = await app.mysql.query(`SELECT COUNT(*) as total FROM music_hotcomments`)
+      let result = await app.mysql.query(`SELECT c.*, s.name as songName, s.artistId, s.artistName 
+        FROM music_hotcomments c, music_songs s 
+        WHERE c.songId = s.id ORDER BY c.likedCount DESC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
+      ctx.body = { status: 200, data: result, total: total[0].total }
+    } catch (error) {
+      throw new Error(error)
+    }
   }
 
   async getHotMusic() {
     const { ctx, app } = this
-    let result = await app.mysql.query(`SELECT s.*, a.picUrl as avatar FROM music_songs s, music_artist a WHERE s.artistId = a.id ORDER BY s.commentCount DESC LIMIT 20`)
-
-    ctx.body = { data: result }
+    try {
+      const { pageNo = 1, pageSize = 20 } = ctx.request.body
+      let total = await app.mysql.query(`SELECT COUNT(*) as total FROM music_songs`)
+      let result = await app.mysql.query(`SELECT s.*, a.picUrl as avatar 
+        FROM music_songs s, music_artist a 
+        WHERE s.artistId = a.id AND s.commentCount > 10000 ORDER BY s.commentCount DESC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
+      ctx.body = { status: 200, data: result, total: total[0].total }
+    } catch (error) {
+      throw new Error(error)
+    }
   }
 
   async getLyric() {

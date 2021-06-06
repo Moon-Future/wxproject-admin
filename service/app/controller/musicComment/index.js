@@ -37,28 +37,59 @@ class HomeController extends Controller {
     const { ctx, app } = this
     const limit = 100
     let offset = 0
+    let obj = {}
 
     const artists = await app.mysql.query(`SELECT * FROM music_artist`)
+    const songsResult = await app.mysql.query(`SELECT * FROM music_songs`)
+    songsResult.forEach(item => {
+      obj[item.id] = true
+    })
 
-    for (let i = 0, len = artists.length; i < len; i++) {
+    // let start = 0, offset = 1104, artist = 104700
+    // INSERT INTO music_songs (uuid, id, name, artistId, artistName) VALUES 
+    // ('3j_28SBY9zP', 1403732627, 'Joseph Megamix (Jacob And Sons-any Dream Will Do- Joseph\'s 
+    // Coat -Pharaoh\'s Story-One More Angel In Heaven-Benjamin\'s Calypso-Close Every Door On 
+    // Me-Brothers Came To Egypt (Instrumental version originally performed by From Joseph And
+    //    The Amazing Technicolor', '104700', 'Various Artists')
+
+    for (let i = 257, len = artists.length; i < len; i++) {
       offset = 0
-      let artistId = artists[i].id
-      let artistsName = artists[i].name
-      let songs = await API.getSongs(artistId, limit, offset * limit)
+      let artist = artists[i].id, artistm = artists[i].name
+      let artistId = '', artistsName = ''
+      let songData = await API.getSongs(artist, limit, offset * limit)
+      let songs = songData.songs, more = songData.more
       for (let j = 0; j < songs.length; j++) {
         let item = songs[j]
+        if (obj[item.id]) continue
+        obj[item.id] = true
+        artistId = item.ar.map(item => { return item.id } ).join('/')
+        artistsName = item.ar.map(item => { return item.name } ).join('/')
+        if (item.ar.length >= 10 || artistsName.length >= 50 || artistId.length >= 50) {
+          artistId = '122455'
+          artistsName = '群星'
+        }
         await app.mysql.query(`INSERT INTO music_songs (uuid, id, name, artistId, artistName) VALUES (?, ?, ?, ?, ?)`, [
           shortid(), item.id, item.name, artistId, artistsName
         ])
       }
       
-      console.log('*********', offset, i, len)
-      while(songs.length >= limit) {
+      console.log('*********', offset, i, len, artist, artistm)
+      while(more) {
         offset++
-        console.log('*********', offset)
-        songs = await API.getSongs(artistId, limit, offset * limit)
+        console.log('*********', offset, i, len, artist, artistm)
+        songData = await API.getSongs(artist, limit, offset * limit)
+        songs = songData.songs
+        more = songData.more
         for (let j = 0; j < songs.length; j++) {
           let item = songs[j]
+          if (obj[item.id]) continue
+          obj[item.id] = true
+          artistId = item.ar.map(item => { return item.id } ).join('/')
+          artistsName = item.ar.map(item => { return item.name } ).join('/')
+          if (item.ar.length >= 10 || artistsName.length >= 50 || artistId.length >= 50) {
+            artistId = '122455'
+            artistsName = '群星'
+          }
           await app.mysql.query(`INSERT INTO music_songs (uuid, id, name, artistId, artistName) VALUES (?, ?, ?, ?, ?)`, [
             shortid(), item.id, item.name, artistId, artistsName
           ])
@@ -66,7 +97,7 @@ class HomeController extends Controller {
       }
     }
 
-    ctx.body = { songs }
+    ctx.body = 'ok'
   }
 
   // 处理歌曲
@@ -137,7 +168,7 @@ class HomeController extends Controller {
   async getCommentCount() {
     const { ctx, app } = this
     let songs = await app.mysql.query(`SELECT * FROM music_songs`)
-    let start = 0, startTime = Date.now()
+    let start = 223951, startTime = Date.now()
     for (let i = start, len = songs.length; i < len; i++) {
       let endTime = Date.now()
       console.log(len, i, utils.dateFormat(startTime, 'hh:mm'), utils.dateFormat(endTime, 'hh:mm'))
@@ -146,33 +177,33 @@ class HomeController extends Controller {
       let count = await API.getCommentCount(song.id)
       await app.mysql.query(`UPDATE music_songs SET commentCount = ? WHERE id = ?`, [count, song.id])
 
-      let hotComments = await API.getComments(song.id, 1, 20, 2)
+      // let hotComments = await API.getComments(song.id, 1, 20, 2)
 
-      for (let j = 0; j < hotComments.length; j++) {
-        let item = hotComments[j]
-        let user = item.user
-        let beReplied = item.beReplied && item.beReplied[0] || { id: null, userId: null, userType: null, nickname: '', avatar: '', content: '' }
-        if (item.likedCount < 1000) continue
-        try {
-          await app.mysql.query(`INSERT INTO music_hotcomments (id, content, time, likedCount, userId, userType, nickname, avatar, beRepliedId, beRepliedUserId, 
-            beRepliedUserType, beRepliedNickname, beRepliedAvatar, beRepliedContent, songId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
-              item.commentId, filteremoji(item.content), item.time, item.likedCount, user.userId, user.userType, user.nickname, user.avatarUrl, beReplied.id,
-              beReplied.userId, beReplied.userType, beReplied.nickname, beReplied.avatar, filteremoji(beReplied.content), song.id
-            ])
-        } catch (error) {
-          try {
-            if (error.sqlMessage.indexOf('Incorrect string value') !== -1) {
-              await app.mysql.query(`INSERT INTO music_hotcomments (id, content, time, likedCount, userId, userType, nickname, avatar, beRepliedId, beRepliedUserId, 
-                beRepliedUserType, beRepliedNickname, beRepliedAvatar, beRepliedContent, songId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
-                  item.commentId, encodeURIComponent(filteremoji(item.content)), item.time, item.likedCount, user.userId, user.userType, user.nickname, user.avatarUrl, beReplied.id,
-                  beReplied.userId, beReplied.userType, beReplied.nickname, beReplied.avatar, encodeURIComponent(filteremoji(beReplied.content)), song.id
-                ])
-            }
-          } catch (err) {
-            console.log('err: ', err, error)
-          }
-        }
-      }
+      // for (let j = 0; j < hotComments.length; j++) {
+      //   let item = hotComments[j]
+      //   let user = item.user
+      //   let beReplied = item.beReplied && item.beReplied[0] || { id: null, userId: null, userType: null, nickname: '', avatar: '', content: '' }
+      //   if (item.likedCount < 1000) continue
+      //   try {
+      //     await app.mysql.query(`INSERT INTO music_hotcomments (id, content, time, likedCount, userId, userType, nickname, avatar, beRepliedId, beRepliedUserId, 
+      //       beRepliedUserType, beRepliedNickname, beRepliedAvatar, beRepliedContent, songId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+      //         item.commentId, filteremoji(item.content), item.time, item.likedCount, user.userId, user.userType, user.nickname, user.avatarUrl, beReplied.id,
+      //         beReplied.userId, beReplied.userType, beReplied.nickname, beReplied.avatar, filteremoji(beReplied.content), song.id
+      //       ])
+      //   } catch (error) {
+      //     try {
+      //       if (error.sqlMessage.indexOf('Incorrect string value') !== -1) {
+      //         await app.mysql.query(`INSERT INTO music_hotcomments (id, content, time, likedCount, userId, userType, nickname, avatar, beRepliedId, beRepliedUserId, 
+      //           beRepliedUserType, beRepliedNickname, beRepliedAvatar, beRepliedContent, songId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+      //             item.commentId, encodeURIComponent(filteremoji(item.content)), item.time, item.likedCount, user.userId, user.userType, user.nickname, user.avatarUrl, beReplied.id,
+      //             beReplied.userId, beReplied.userType, beReplied.nickname, beReplied.avatar, encodeURIComponent(filteremoji(beReplied.content)), song.id
+      //           ])
+      //       }
+      //     } catch (err) {
+      //       console.log('err: ', err, error)
+      //     }
+      //   }
+      // }
     }
     ctx.body = 'ok'
   }

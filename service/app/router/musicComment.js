@@ -1,6 +1,6 @@
 module.exports = function(router, controller) {
   // router.get('/api/musicComment/getArtists', controller.musicComment.index.getArtists);
-  // router.get('/api/musicComment/getSongs', controller.musicComment.index.getSongs);
+  router.get('/api/musicComment/getSongs', controller.musicComment.index.getSongs);
   // router.get('/api/musicComment/handleSongs', controller.musicComment.index.handleSongs);
 
   router.get('/api/musicComment/getCommentCount', controller.musicComment.index.getCommentCount);
