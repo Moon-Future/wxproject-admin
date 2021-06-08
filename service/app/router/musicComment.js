@@ -1,4 +1,8 @@
 module.exports = function(router, controller) {
+  // 后台
+  router.post('/api/music/getArtist', controller.musicComment.admin.getArtist);
+  router.post('/api/music/getHotComment', controller.musicComment.admin.getHotComment);
+
   // router.get('/api/musicComment/getArtists', controller.musicComment.index.getArtists);
   router.get('/api/musicComment/getSongs', controller.musicComment.index.getSongs);
   // router.get('/api/musicComment/handleSongs', controller.musicComment.index.handleSongs);

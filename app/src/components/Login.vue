@@ -216,7 +216,7 @@ export default {
 .login-container {
   text-align: left;
 }
-/deep/ .login-dialog {
+::v-deep .login-dialog {
   width: 26rem;
   @media screen and (max-width: 768px) {
     width: 100%;

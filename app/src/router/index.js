@@ -62,6 +62,46 @@ const routes = [
           requireAuth: true
         },
         component: () => import('@/views/lottery/superLotto.vue')
+      },
+      {
+        path: '/music/artist',
+        name: 'Artist',
+        meta: {
+          requireAuth: true
+        },
+        component: () => import('@/views/music/Artist.vue')
+      },
+      {
+        path: '/music/comment',
+        name: 'Comment',
+        meta: {
+          requireAuth: true
+        },
+        component: () => import('@/views/music/Comment.vue')
+      },
+      {
+        path: '/music/hotcomment',
+        name: 'HotComment',
+        meta: {
+          requireAuth: true
+        },
+        component: () => import('@/views/music/HotComment.vue')
+      },
+      {
+        path: '/music/song',
+        name: 'Song',
+        meta: {
+          requireAuth: true
+        },
+        component: () => import('@/views/music/Song.vue')
+      },
+      {
+        path: '/music/hotsong',
+        name: 'hotsong',
+        meta: {
+          requireAuth: true
+        },
+        component: () => import('@/views/music/HotSong.vue')
       }
     ]
   },

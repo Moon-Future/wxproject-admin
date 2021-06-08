@@ -67,6 +67,33 @@ export default {
           ]
         },
         {
+          // icon: 'el-icon-menu',
+          index: '3',
+          title: '网易云',
+          subs: [
+            {
+              index: '/music/artist',
+              title: '歌手'
+            },
+            {
+              index: '/music/song',
+              title: '歌曲'
+            },
+            {
+              index: '/music/hotsong',
+              title: '热门歌曲'
+            },
+            {
+              index: '/music/comment',
+              title: '评论'
+            },
+            {
+              index: '/music/hotcomment',
+              title: '热门评论'
+            }
+          ]
+        },
+        {
           index: '/login',
           title: '退出'
         }

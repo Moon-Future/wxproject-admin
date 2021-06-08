@@ -13,8 +13,8 @@
         <el-table-column label="操作" min-width="150">
           <template slot-scope="scope">
             <slot name="table-action" :data="scope.row"></slot>
-            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            <el-button size="mini" v-if="!noAction" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+            <el-button size="mini" v-if="!noAction" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -132,6 +132,10 @@ export default {
       default: 20
     },
     editEmit: {
+      type: Boolean,
+      default: false
+    },
+    noAction: {
       type: Boolean,
       default: false
     }
@@ -321,7 +325,7 @@ export default {
   width: 100%;
   margin: 10px 0;
 }
-/deep/ .required .el-form-item__label:after {
+::v-deep .required .el-form-item__label:after {
   content: ' *';
   color: red;
 }
@@ -331,13 +335,13 @@ export default {
 .rich-editor {
   background: #fff;
 }
-/deep/ .ql-editor {
+::v-deep .ql-editor {
   min-height: 500px;
 }
-/deep/ .ql-toolbar {
+::v-deep .ql-toolbar {
   text-align: left;
 }
-/deep/ .ql-snow .ql-picker {
+::v-deep .ql-snow .ql-picker {
   line-height: 24px;
 }
 </style>

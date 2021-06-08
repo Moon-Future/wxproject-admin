@@ -161,7 +161,7 @@ export default {
 <style lang="scss" scoped>
 .preview-content {
   text-align: left;
-  /deep/ p {
+  ::v-deep p {
     padding: 10px 0;
   }
 }

@@ -32,7 +32,12 @@ export const URL = {
 
   // 获取开奖信息
   getLotteryData: '/api/lottery/getLotteryData',
-  getLotteryRecent: '/api/lottery/getLotteryRecent'
+  getLotteryRecent: '/api/lottery/getLotteryRecent',
+
+
+  // 网易云
+  getArtist: '/api/music/getArtist',
+  getHotComment: '/api/music/getHotComment'
 }
 
 const API = {
@@ -122,7 +127,16 @@ const API = {
 
   getLotteryRecent(data) {
     return http.post(URL.getLotteryRecent, data)
-  }
+  },
+
+
+  getArtist(data) {
+    return http.post(URL.getArtist, data)
+  },
+
+  getHotComment(data) {
+    return http.post(URL.getHotComment, data)
+  },
 }
 
 export default API
