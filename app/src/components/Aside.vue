@@ -80,10 +80,6 @@ export default {
               title: '歌曲'
             },
             {
-              index: '/music/hotsong',
-              title: '热门歌曲'
-            },
-            {
               index: '/music/comment',
               title: '评论'
             },

@@ -94,14 +94,6 @@ const routes = [
           requireAuth: true
         },
         component: () => import('@/views/music/Song.vue')
-      },
-      {
-        path: '/music/hotsong',
-        name: 'hotsong',
-        meta: {
-          requireAuth: true
-        },
-        component: () => import('@/views/music/HotSong.vue')
       }
     ]
   },

@@ -37,7 +37,9 @@ export const URL = {
 
   // 网易云
   getArtist: '/api/music/getArtist',
-  getHotComment: '/api/music/getHotComment'
+  getHotComment: '/api/music/getHotComment',
+  getSong: '/api/music/getSong',
+  updateMusicSize: '/api/music/updateMusicSize',
 }
 
 const API = {
@@ -136,6 +138,14 @@ const API = {
 
   getHotComment(data) {
     return http.post(URL.getHotComment, data)
+  },
+
+  getSong(data) {
+    return http.post(URL.getSong, data)
+  },
+
+  updateMusicSize(data) {
+    return http.post(URL.updateMusicSize, data)
   },
 }
 

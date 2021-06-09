@@ -77,8 +77,8 @@ export default {
         console.log(error)
       }
     },
-    update() {
-
+    async update(data) {
+      let res = await API.updateMusicSize({ artist: data.id })
     }
   }
 }

@@ -50,11 +50,9 @@ export default {
   data() {
     return {
       fields: [
-        // { field: 'picUrl', label: '头像', tableNodeType: 'img' },
-        { field: 'name', label: '姓名' },
-        { field: 'alias', label: '别名' },
-        { field: 'id', label: 'ID' },
-        { field: 'musicSize', label: '歌曲数量' }
+        { field: 'name', label: '歌名' },
+        { field: 'artistName', label: '歌手' },
+        { field: 'commentCount', label: '评论数' }
       ],
       tableData: [],
       searchConds: {
@@ -68,7 +66,7 @@ export default {
         params.pageNo = this.pageNo
         params.pageSize = this.pageSize
         this.loading = true
-        let res = await API.getArtist(params)
+        let res = await API.getSong(params)
         this.tableData = res.data.data
         this.total = res.data.count
         this.loading = false
