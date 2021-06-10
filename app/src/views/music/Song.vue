@@ -20,8 +20,8 @@
       @changeNo="changeNo"
       @refreshData="refreshData"
     >
-      <template slot="table-action" slot-scope="{ data }">
-        <el-button size="mini" type="primary" @click="update(data)">更新</el-button>
+      <template slot="table-action" slot-scope="{ data, index }">
+        <el-button size="mini" type="primary" :loading="data.loading" @click="update(data, index)">更新</el-button>
       </template>
     </base-table>
   </div>
@@ -75,8 +75,14 @@ export default {
         console.log(error)
       }
     },
-    update() {
-
+    async update(data, index) {
+      let newData = Object.assign({}, data)
+      newData.loading = true
+      this.tableData.splice(index, 1, newData)
+      let res = await API.updateCommentCount({ id: data.id })
+      newData.commentCount = res.data.data
+      newData.loading = false
+      this.tableData.splice(index, 1, newData)
     }
   }
 }

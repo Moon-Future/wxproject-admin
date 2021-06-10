@@ -12,7 +12,7 @@
         </template>
         <el-table-column label="操作" min-width="150">
           <template slot-scope="scope">
-            <slot name="table-action" :data="scope.row"></slot>
+            <slot name="table-action" :data="scope.row" :index="scope.$index"></slot>
             <el-button size="mini" v-if="!noAction" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
             <el-button size="mini" v-if="!noAction" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
           </template>

@@ -33,7 +33,7 @@ export const tableMixin = {
     },
     changeNo(val) {
       this.pageNo = val
-      this.getData()
+      this.getData(this.searchConds)
     }
   }
 }

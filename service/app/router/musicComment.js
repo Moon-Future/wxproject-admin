@@ -4,7 +4,7 @@ module.exports = function(router, controller) {
   router.post('/api/music/getHotComment', controller.musicComment.admin.getHotComment);
   router.post('/api/music/getSong', controller.musicComment.admin.getSong);
   router.post('/api/music/updateMusicSize', controller.musicComment.admin.updateMusicSize);
-
+  router.post('/api/music/updateCommentCount', controller.musicComment.admin.updateCommentCount);
 
   // router.get('/api/musicComment/getArtists', controller.musicComment.index.getArtists);
   router.get('/api/musicComment/getSongs', controller.musicComment.index.getSongs);

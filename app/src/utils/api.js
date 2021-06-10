@@ -40,6 +40,7 @@ export const URL = {
   getHotComment: '/api/music/getHotComment',
   getSong: '/api/music/getSong',
   updateMusicSize: '/api/music/updateMusicSize',
+  updateCommentCount: '/api/music/updateCommentCount',
 }
 
 const API = {
@@ -146,6 +147,10 @@ const API = {
 
   updateMusicSize(data) {
     return http.post(URL.updateMusicSize, data)
+  },
+
+  updateCommentCount(data) {
+    return http.post(URL.updateCommentCount, data)
   },
 }
 
