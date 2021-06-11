@@ -37,5 +37,11 @@ module.exports = {
   async getLyric(id) {
     const result = await axios.get(`${HOST}/lyric?id=${id}`)
     return result.data.lrc.lyric
+  },
+
+  // 获取评论点赞数
+  async getLikedCount(commentId, songId) {
+    const result = await axios.get(`${HOST}/comment/floor?parentCommentId=${commentId}&id=${songId}&type=0&limit=1`)
+    return result.data.data.ownerComment.likedCount
   }
 }

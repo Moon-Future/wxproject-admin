@@ -5,6 +5,8 @@ module.exports = function(router, controller) {
   router.post('/api/music/getSong', controller.musicComment.admin.getSong);
   router.post('/api/music/updateMusicSize', controller.musicComment.admin.updateMusicSize);
   router.post('/api/music/updateCommentCount', controller.musicComment.admin.updateCommentCount);
+  router.post('/api/music/updateCommentLikedCount', controller.musicComment.admin.updateCommentLikedCount);
+  router.post('/api/music/getUpdateHistory', controller.musicComment.admin.getUpdateHistory);
 
   // router.get('/api/musicComment/getArtists', controller.musicComment.index.getArtists);
   router.get('/api/musicComment/getSongs', controller.musicComment.index.getSongs);

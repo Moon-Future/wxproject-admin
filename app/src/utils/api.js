@@ -41,6 +41,8 @@ export const URL = {
   getSong: '/api/music/getSong',
   updateMusicSize: '/api/music/updateMusicSize',
   updateCommentCount: '/api/music/updateCommentCount',
+  updateCommentLikedCount: '/api/music/updateCommentLikedCount',
+  getUpdateHistory: '/api/music/getUpdateHistory'
 }
 
 const API = {
@@ -151,6 +153,14 @@ const API = {
 
   updateCommentCount(data) {
     return http.post(URL.updateCommentCount, data)
+  },
+
+  updateCommentLikedCount(data) {
+    return http.post(URL.updateCommentLikedCount, data)
+  },
+
+  getUpdateHistory(data) {
+    return http.post(URL.getUpdateHistory, data)
   },
 }
 

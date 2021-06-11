@@ -85,6 +85,78 @@ class HomeController extends Controller {
       throw new Error(error)
     }
   }
+
+  // 更新评论点赞数
+  async updateCommentLikedCount() {
+    try {
+      const { ctx, app } = this
+      const { commentId = '', songId = '', startIndex, endIndex } = ctx.request.body
+      if (startIndex) {
+        let result = await app.mysql.query(`SELECT * FROM music_hotcomments ORDER BY likedCount DESC LIMIT ?, ?`, [startIndex - 1, endIndex - startIndex])
+        this.musicCommentLikeCount = { startIndex, i: 0 }
+        try {
+          await startUpdate(app, 2)
+          for (let item of result) {
+            if (!this.musicCommentLikeCount) {
+              ctx.body = { status: 200, data: '停止更新' }
+            }
+            let { id, songId } = item
+            let total = await API.getLikedCount(id, songId)
+            await app.mysql.query(`UPDATE music_hotcomments SET likedCount = ? WHERE id = ?`, [total, id])
+            this.musicCommentLikeCount.i++
+          }
+          await stopUpdate(app, this.musicCommentLikeCount, 2)
+          ctx.body = { status: 200, data: '完成更新' }
+        } catch (error) {
+          await stopUpdate(app, this.musicCommentLikeCount, 2)
+          throw new Error(error)
+        }
+      } else {
+        let total = await API.getLikedCount(commentId, songId)
+        await app.mysql.query(`UPDATE music_hotcomments SET likedCount = ? WHERE id = ?`, [total, commentId])
+        ctx.body = { status: 200, data: total }
+      }
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
+
+  // 获取更新记录
+  async getUpdateHistory() {
+    try {
+      const { ctx, app } = this
+      const { type = 0 } = ctx.request.body
+      const result = await app.mysql.query(`SELECT * FROM music_update WHERE type = ?`, [type])
+      if (result.length === 0) {
+        let data = {
+          id: shortid(), type, time: Date.now(), startIndex: 0, endIndex: 0, doing: 0
+        }
+        result.push(data)
+        await app.mysql.query(`INSERT INTO music_update (id, type, time, startIndex, endIndex, doing) VALUES (?, ?, ?, ?, ?, ?)`, 
+        [data.id, data.type, data.time, data.startIndex, data.endIndex, data.doing])
+      }
+      ctx.body = { status: 200, data: result[0] }
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  async stopUpdate() {
+    const { ctx, app } = this
+    const { type = 0 } = ctx.request.body
+    await stopUpdate(app, this.musicCommentLikeCount, type)
+  }
+}
+
+async function startUpdate(app, type = 0) {
+  await app.mysql.query(`UPDATE music_update SET doing = ? WHERE type = ?`, [1, type])
+}
+
+async function stopUpdate(app, params, type = 0) {
+  await app.mysql.query(`UPDATE music_update SET time = ?, startIndex = ?, endIndex = ?, doing = ? WHERE type = ?`, 
+    [Date.now(), params.startIndex, params.startIndex + params.i, 0, type]) 
+  params = null
 }
 
 // 过滤 Emoji

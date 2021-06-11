@@ -21,7 +21,7 @@
       @refreshData="refreshData"
     >
       <template slot="table-action" slot-scope="{ data, index }">
-        <el-button size="mini" type="primary" :loading="data.loading" @click="update(data, index)">更新</el-button>
+        <el-button size="mini" type="primary" :loading="data.loading" @click="update(data, index)">更新评论数</el-button>
       </template>
     </base-table>
   </div>
