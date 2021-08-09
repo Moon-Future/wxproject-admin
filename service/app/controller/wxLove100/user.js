@@ -1,4 +1,5 @@
 'use strict'
+const shortid = require('shortid')
 const Controller = require('egg').Controller
 
 class HomeController extends Controller {
@@ -33,14 +34,18 @@ class HomeController extends Controller {
         ctx.body = { status: 1, message: '你们早已经是恋人啦~' }
         return
       }
+      const common = shortid()
+      const time = Date.now()
       await app.mysql.query(`
         UPDATE love100_user SET lover = CASE id
           WHEN ? THEN ?
           WHEN ? THEN ?
-        END WHERE id IN (?, ?)
-      `, [from, to, to, from, from, to])
-      ctx.body = { status: 1, message: '牵手成功！' }
+        END, common = ? WHERE id IN (?, ?)
+      `, [from, to, to, from, common, from, to])
+      await app.mysql.query(`INSERT INTO love100_lover (id, common, user, time) VALUES (?, ?, ?, ?), (?, ?, ?, ?)`, [shortid(), common, from, time, shortid(), common, to, time])
+      ctx.body = { status: 1, message: '牵手成功！', data: { common } }
     } catch(e) {
+      console.log(e)
       ctx.body = { message: '服务端出错' }
     }
   }
@@ -48,7 +53,7 @@ class HomeController extends Controller {
   async breakup () {
     const { ctx, app } = this
     try {
-      const { id, lover } = ctx.request.body
+      const { id, lover, common } = ctx.request.body
       const result = await app.mysql.query(`SELECT * FROM love100_user WHERE id IN (?, ?)`, [id, lover])
       let selfData = null, loverData = null
       result.forEach(ele => {
@@ -59,10 +64,8 @@ class HomeController extends Controller {
           loverData = ele
         }
       })
-      await app.mysql.query(`UPDATE love100_user SET lover = '' WHERE id = ?`, [id])
-      if (loverData.lover === id) {
-        await app.mysql.query(`UPDATE love100_user SET lover = '' WHERE id = ?`, [lover])
-      }
+      await app.mysql.query(`UPDATE love100_user SET lover = '', common = '' WHERE id IN (?, ?)`, [id, lover])
+      await app.mysql.query(`UPDATE love100_lover SET off = 1 WHERE common = ?`, [common])
       ctx.body = { status: 1, message: '天下无不散的宴席' }
     } catch(e) {
       ctx.body = { message: '服务端出错' }

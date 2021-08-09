@@ -20,8 +20,9 @@ class HomeController extends Controller {
         await app.mysql.query(`INSERT INTO love100_user (id, time) VALUES (?, ?)`, [openid, Date.now()])
         userInfo = [{ id: openid }]
       } else {
-        userInfo = await app.mysql.query(`SELECT a.*, b.nickName as loverNickName, b.avatarUrl as loverAvatarUrl 
+        let res = await app.mysql.query(`SELECT a.*, b.nickName as loverNickName, b.avatarUrl as loverAvatarUrl 
         FROM love100_user a, love100_user b WHERE a.id = ? AND a.lover = b.id`, [openid])
+        userInfo = res.length ? res : userInfo
       }
       ctx.body = { userInfo: userInfo[0], session_key: res.data.session_key, access_token: accessTokenRes.data.access_token }
     } catch(e) {
