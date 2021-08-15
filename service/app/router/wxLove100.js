@@ -8,5 +8,7 @@ module.exports = function (router, controller) {
   router.post('/api/wxLove100/getCardList/', controller.wxLove100.card.getCardList)
   router.post('/api/wxLove100/cardFinished/', controller.wxLove100.card.cardFinished)
   router.post('/api/wxLove100/cardEdit/', controller.wxLove100.card.cardEdit)
-  // router.post('/api/wxLove100/register/', controller.wxLove100.login.register)
+  router.post('/api/wxLove100/getSentence/', controller.wxLove100.card.getSentence)
+
+  // router.get('/api/wxLove100/importCardList/', controller.wxLove100.importData.importCardList)
 }

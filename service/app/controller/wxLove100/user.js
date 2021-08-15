@@ -68,6 +68,7 @@ class HomeController extends Controller {
       await app.mysql.query(`UPDATE love100_lover SET off = 1 WHERE common = ?`, [common])
       ctx.body = { status: 1, message: '天下无不散的宴席' }
     } catch(e) {
+      console.log(e)
       ctx.body = { message: '服务端出错' }
     }
   }
