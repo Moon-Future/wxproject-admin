@@ -10,12 +10,12 @@ const musicComment = require('./router/musicComment')
  * @param {Egg.Application} app - egg application
  */
 module.exports = (app) => {
-  const { router, controller } = app
+  const { router, controller, io } = app
 
   user(router, controller)
   wxName(router, controller)
   wxLove(router, controller)
-  wxLove100(router, controller)
+  wxLove100(router, controller, io)
   musicComment(router, controller)
   // importToMysql(router, controller);
 }

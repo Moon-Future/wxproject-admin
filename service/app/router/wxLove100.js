@@ -1,4 +1,4 @@
-module.exports = function (router, controller) {
+module.exports = function (router, controller, io) {
   router.post('/api/wxLove100/login/', controller.wxLove100.login.login)
   router.post('/api/wxLove100/updateUserInfo/', controller.wxLove100.login.updateUserInfo)
 
@@ -11,4 +11,6 @@ module.exports = function (router, controller) {
   router.post('/api/wxLove100/getSentence/', controller.wxLove100.card.getSentence)
 
   // router.get('/api/wxLove100/importCardList/', controller.wxLove100.importData.importCardList)
+
+  io.of('/love100').route('index', io.controller.wxLove100.index)
 }

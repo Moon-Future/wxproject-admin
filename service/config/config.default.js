@@ -62,6 +62,16 @@ module.exports = (appInfo) => {
     mode: 'file',
   }
 
+  config.io = {
+    init: { }, // passed to engine.io
+    namespace: {
+      '/love100': {
+        connectionMiddleware: ['connection'],
+        packetMiddleware: [],
+      },
+    },
+  }
+
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
