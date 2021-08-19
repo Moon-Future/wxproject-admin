@@ -13,4 +13,5 @@ module.exports = function (router, controller, io) {
   // router.get('/api/wxLove100/importCardList/', controller.wxLove100.importData.importCardList)
 
   io.of('/love100').route('agree', io.controller.wxLove100.agree)
+  io.of('/love100').route('breakup', io.controller.wxLove100.breakup)
 }
