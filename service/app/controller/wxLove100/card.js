@@ -23,6 +23,11 @@ class HomeController extends Controller {
     const { ctx, app } = this
     try {
       const { cardId, common, adr, date } = ctx.request.body
+      const result = await app.mysql.query(`SELECT * FROM love100_lover WHERE common = ? AND off != 1`, [common])
+      if (!result.length) {
+        ctx.body = { status: 0, message: '请邀请对象一起完成哦~' }
+        return
+      }
       const finishedId = shortid()
       await app.mysql.query(`INSERT INTO love100_finished (id, common, adr, date, cardId, off) VALUES (?, ?, ?, ?, ?, 0)`,
         [finishedId, common, adr, date, cardId])
@@ -36,7 +41,12 @@ class HomeController extends Controller {
   async cardEdit() {
     const { ctx, app } = this
     try {
-      const { adr, date, finishedId, delFlag = false } = ctx.request.body
+      const { common, adr, date, finishedId, delFlag = false } = ctx.request.body
+      const result = await app.mysql.query(`SELECT * FROM love100_lover WHERE common = ? AND off != 1`, [common])
+      if (!result.length) {
+        ctx.body = { status: 0, message: '请邀请对象一起完成哦~' }
+        return
+      }
       await app.mysql.query(`UPDATE love100_finished SET adr = ?, date = ?, off = ? WHERE id = ?`,
         [adr, date, delFlag ? 1 : 0, finishedId])
       ctx.body = { status: 1, finishedId: finishedId }
