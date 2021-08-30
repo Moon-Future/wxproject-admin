@@ -43,6 +43,17 @@ class HomeController extends Controller {
       ctx.body = { message: '服务端出错' }
     }
   }
+
+  async getControl() {
+    const { ctx, app } = this
+    try {
+      const result =  await app.mysql.query(`SELECT * FROM love100_control`)
+      ctx.body = { message: 'OK', controlMap: result.length ? result[0] : {} }
+    } catch(e) {
+      console.log(e)
+      ctx.body = { message: '服务端出错' }
+    }
+  }
 }
 
 module.exports = HomeController

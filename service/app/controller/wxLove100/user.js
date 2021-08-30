@@ -65,7 +65,23 @@ class HomeController extends Controller {
     }
   }
 
-  async breakup () {
+  async refuse() {
+    const { ctx, app } = this
+    try {
+      const { userInfo, invitedFrom } = ctx.request.body
+      const time = Date.now()
+      await app.mysql.query(`INSERT INTO love100_message (id, title, content, userId, fromId, date, reador) VALUES (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)`, 
+        [shortid(), '十动然拒', `${userInfo.nickName}十分感动， 然后拒绝了您的邀请`, invitedFrom.id, 'system', time, 0,
+          shortid(), '十动然拒', `您十分感动，然后拒绝了${invitedFrom.nickName}的邀请`, userInfo.id, 'system', time, 1
+        ])
+      ctx.body = { status: 1 }
+    } catch(e) {
+      console.log(e)
+      ctx.body = { message: '服务端出错' }
+    }
+  }
+
+  async breakup() {
     const { ctx, app } = this
     try {
       const { id, nickName, lover, loverNickName, common } = ctx.request.body

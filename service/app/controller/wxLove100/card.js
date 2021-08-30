@@ -22,15 +22,28 @@ class HomeController extends Controller {
   async cardFinished() {
     const { ctx, app } = this
     try {
-      const { cardId, common, adr, date } = ctx.request.body
+      const { cardId, common, adr, date, userInfo, cardTitle } = ctx.request.body
       const result = await app.mysql.query(`SELECT * FROM love100_lover WHERE common = ? AND off != 1`, [common])
       if (!result.length) {
         ctx.body = { status: 0, message: '请邀请对象一起完成哦~' }
         return
       }
-      const finishedId = shortid()
-      await app.mysql.query(`INSERT INTO love100_finished (id, common, adr, date, cardId, off) VALUES (?, ?, ?, ?, ?, 0)`,
-        [finishedId, common, adr, date, cardId])
+      let finishedId = ''
+      const finishDelete = await app.mysql.query(`SELECT * FROM love100_finished WHERE common = ? AND cardId = ?`, [common, cardId])
+      if (finishDelete.length) {
+        finishedId = finishDelete[0].id
+        await app.mysql.query(`UPDATE love100_finished SET adr = ?, date = ?, off = 0 WHERE id = ?`, [adr, date, finishedId])
+      } else {
+        finishedId = shortid()
+        await app.mysql.query(`INSERT INTO love100_finished (id, common, adr, date, cardId, off) VALUES (?, ?, ?, ?, ?, 0)`,
+          [finishedId, common, adr, date, cardId])
+      }
+
+      const time = Date.now()
+      await app.mysql.query(`INSERT INTO love100_message (id, title, content, userId, fromId, date, reador) VALUES (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)`, 
+        [shortid(), '一路有你', `${userInfo.nickName}和您共同完成了【${cardTitle}】`, userInfo.lover, 'system', time, 0,
+          shortid(), '一路有你', `您和${userInfo.loverNickName}共同完成了【${cardTitle}】`, userInfo.id, 'system', time, 1
+        ])
       ctx.body = { status: 1, finishedId: finishedId }
     } catch(e) {
       console.log(e)
@@ -41,7 +54,7 @@ class HomeController extends Controller {
   async cardEdit() {
     const { ctx, app } = this
     try {
-      const { common, adr, date, finishedId, delFlag = false } = ctx.request.body
+      const { common, adr, date, finishedId, delFlag = false, userInfo, cardTitle } = ctx.request.body
       const result = await app.mysql.query(`SELECT * FROM love100_lover WHERE common = ? AND off != 1`, [common])
       if (!result.length) {
         ctx.body = { status: 0, message: '请邀请对象一起完成哦~' }
@@ -49,6 +62,15 @@ class HomeController extends Controller {
       }
       await app.mysql.query(`UPDATE love100_finished SET adr = ?, date = ?, off = ? WHERE id = ?`,
         [adr, date, delFlag ? 1 : 0, finishedId])
+
+      const time = Date.now()
+      if (delFlag) {
+        await app.mysql.query(`INSERT INTO love100_message (id, title, content, userId, fromId, date, reador) VALUES (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)`, 
+          [shortid(), '一路有你', `${userInfo.nickName}取消了已完成事件【${cardTitle}】`, userInfo.lover, 'system', time, 0,
+            shortid(), '一路有你', `您取消了已完成事件【${cardTitle}】`, userInfo.id, 'system', time, 1
+          ])
+      }
+      
       ctx.body = { status: 1, finishedId: finishedId }
     } catch(e) {
       console.log(e)
