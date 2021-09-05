@@ -5,9 +5,10 @@ const Controller = require('egg').Controller
 class HomeController extends Controller {
   async toBeLover() {
     const { ctx, app } = this
+    const conn = await app.mysql.beginTransaction()
     try {
       const { from, to } = ctx.request.body
-      const result = await app.mysql.query(`SELECT * FROM love100_user WHERE id IN (?, ?)`, [from, to])
+      const result = await conn.query(`SELECT * FROM love100_user WHERE id IN (?, ?)`, [from, to])
       let fromData = null, toData = null
       result.forEach(ele => {
         if (ele.id === from) {
@@ -37,15 +38,15 @@ class HomeController extends Controller {
 
       // 判断之前是否已经是情侣
       let common = ''
-      const loverResult = await app.mysql.query(`SELECT * FROM love100_lover WHERE (user1 = ? AND user2 = ?) OR (user1 = ? AND user2 = ?) AND off = 1`, [from, to, to, from])
+      const loverResult = await conn.query(`SELECT * FROM love100_lover WHERE (user1 = ? AND user2 = ?) OR (user1 = ? AND user2 = ?) AND off = 1`, [from, to, to, from])
       if (loverResult.length) {
         common = loverResult[0].common
-        await app.mysql.query(`UPDATE love100_lover SET off = 0 WHERE common = ?`, [common])
+        await conn.query(`UPDATE love100_lover SET off = 0 WHERE common = ?`, [common])
       } else {
         common = shortid()
-        await app.mysql.query(`INSERT INTO love100_lover (id, common, user1, user2, time) VALUES (?, ?, ?, ?, ?)`, [shortid(), common, from, to, Date.now()])
+        await conn.query(`INSERT INTO love100_lover (id, common, user1, user2, time) VALUES (?, ?, ?, ?, ?)`, [shortid(), common, from, to, Date.now()])
       }
-      await app.mysql.query(`
+      await conn.query(`
         UPDATE love100_user SET lover = CASE id
           WHEN ? THEN ?
           WHEN ? THEN ?
@@ -53,13 +54,15 @@ class HomeController extends Controller {
       `, [from, to, to, from, common, from, to])
 
       const date = Date.now()
-      await app.mysql.query(`INSERT INTO love100_message (id, title, content, userId, fromId, date, reador) VALUES (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)`, 
+      await conn.query(`INSERT INTO love100_message (id, title, content, userId, fromId, date, reador) VALUES (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)`, 
         [shortid(), '牵手成功', `${toData.nickName}已接受您的邀请，愿得一人心，白首不相离`, from, 'system', date, 0,
           shortid(), '牵手成功', `您已接受${fromData.nickName}的邀请，愿得一人心，白首不相离`, to, 'system', date, 1,
         ])
 
+      await conn.commit()
       ctx.body = { status: 1, message: '牵手成功！', data: { common } }
     } catch(e) {
+      await conn.rollback()
       console.log(e)
       ctx.body = { message: '服务端出错' }
     }
@@ -67,15 +70,18 @@ class HomeController extends Controller {
 
   async refuse() {
     const { ctx, app } = this
+    const conn = await app.mysql.beginTransaction()
     try {
       const { userInfo, invitedFrom } = ctx.request.body
       const time = Date.now()
-      await app.mysql.query(`INSERT INTO love100_message (id, title, content, userId, fromId, date, reador) VALUES (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)`, 
+      await conn.query(`INSERT INTO love100_message (id, title, content, userId, fromId, date, reador) VALUES (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)`, 
         [shortid(), '十动然拒', `${userInfo.nickName}十分感动， 然后拒绝了您的邀请`, invitedFrom.id, 'system', time, 0,
           shortid(), '十动然拒', `您十分感动，然后拒绝了${invitedFrom.nickName}的邀请`, userInfo.id, 'system', time, 1
         ])
+      await conn.commit()
       ctx.body = { status: 1 }
     } catch(e) {
+      await conn.rollback()
       console.log(e)
       ctx.body = { message: '服务端出错' }
     }
@@ -83,9 +89,10 @@ class HomeController extends Controller {
 
   async breakup() {
     const { ctx, app } = this
+    const conn = await app.mysql.beginTransaction()
     try {
       const { id, nickName, lover, loverNickName, common } = ctx.request.body
-      const result = await app.mysql.query(`SELECT * FROM love100_user WHERE id IN (?, ?)`, [id, lover])
+      const result = await conn.query(`SELECT * FROM love100_user WHERE id IN (?, ?)`, [id, lover])
       let selfData = null, loverData = null
       result.forEach(ele => {
         if (ele.id === id) {
@@ -95,16 +102,19 @@ class HomeController extends Controller {
           loverData = ele
         }
       })
-      await app.mysql.query(`UPDATE love100_user SET lover = '', common = '' WHERE id IN (?, ?)`, [id, lover])
-      await app.mysql.query(`UPDATE love100_lover SET off = 1 WHERE common = ?`, [common])
+      await conn.query(`UPDATE love100_user SET lover = '', common = '' WHERE id IN (?, ?)`, [id, lover])
+      await conn.query(`UPDATE love100_lover SET off = 1 WHERE common = ?`, [common])
 
       const date = Date.now()
-      await app.mysql.query(`INSERT INTO love100_message (id, title, content, userId, fromId, date, reador) VALUES (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)`, 
+      await conn.query(`INSERT INTO love100_message (id, title, content, userId, fromId, date, reador) VALUES (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)`, 
         [shortid(), '有缘再牵', `${nickName}断绝了和您的关系，也许你的真爱还在下一秒等着你`, lover, 'system', date, 0,
           shortid(), '有缘再牵', `您断绝了和${loverNickName}的关系，也许你的真爱还在下一秒等着你`, id, 'system', date, 1
         ])
+
+      await conn.commit()
       ctx.body = { status: 1, message: '天下无不散的宴席' }
     } catch(e) {
+      await conn.rollback()
       console.log(e)
       ctx.body = { message: '服务端出错' }
     }
@@ -112,11 +122,15 @@ class HomeController extends Controller {
 
   async getMessage() {
     const { ctx, app } = this
+    const conn = await app.mysql.beginTransaction()
     try {
       const { user } = ctx.request.body
-      const result = await app.mysql.query(`SELECT * FROM love100_message WHERE userId = ? ORDER BY date DESC`, [user])
+      const result = await conn.query(`SELECT * FROM love100_message WHERE userId = ? ORDER BY date DESC`, [user])
+
+      await conn.commit()
       ctx.body = { status: 1, messageList: result }
     } catch(e) {
+      await conn.rollback()
       console.log(e)
       ctx.body = { message: '服务端出错' }
     }
@@ -124,15 +138,18 @@ class HomeController extends Controller {
 
   async readMessage() {
     const { ctx, app } = this
+    const conn = await app.mysql.beginTransaction()
     try {
       const { id, user } = ctx.request.body
       if (user) {
-        await app.mysql.query(`UPDATE love100_message SET reador = 1 WHERE userId = ?`, [user])
+        await conn.query(`UPDATE love100_message SET reador = 1 WHERE userId = ?`, [user])
       } else {
-        await app.mysql.query(`UPDATE love100_message SET reador = 1 WHERE id = ?`, [id])
+        await conn.query(`UPDATE love100_message SET reador = 1 WHERE id = ?`, [id])
       }
+      await conn.commit()
       ctx.body = { status: 1 }
     } catch(e) {
+      await conn.rollback()
       console.log(e)
       ctx.body = { message: '服务端出错' }
     }
