@@ -14,6 +14,8 @@ module.exports = function (router, controller) {
   router.post('/api/wxLove100/cardEdit/', controller.wxLove100.card.cardEdit)
   router.post('/api/wxLove100/getSentence/', controller.wxLove100.card.getSentence)
 
+  router.post('/api/wxLove100/suggest/', controller.wxLove100.system.suggest)
+
   // router.get('/api/wxLove100/importCardList/', controller.wxLove100.importData.importCardList)
 
   // io.of('/love100').route('agree', io.controller.wxLove100.agree)
