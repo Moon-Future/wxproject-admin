@@ -1,5 +1,6 @@
 'use strict'
 
+const admin = require('./router/admin')
 const importToMysql = require('./router/import')
 const wxName = require('./router/wxName')
 const wxLove = require('./router/wxLove')
@@ -12,6 +13,7 @@ const musicComment = require('./router/musicComment')
 module.exports = (app) => {
   const { router, controller, io } = app
 
+  admin(router, controller)
   user(router, controller)
   wxName(router, controller)
   wxLove(router, controller)

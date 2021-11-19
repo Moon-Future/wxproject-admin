@@ -2,6 +2,7 @@
 
 'use strict'
 const { mysql } = require('./secret')
+const path = require('path')
 
 /**
  * @param {Egg.EggAppInfo} appInfo app info
@@ -12,6 +13,11 @@ module.exports = (appInfo) => {
    * @type {Egg.EggAppConfig}
    **/
   const config = (exports = {})
+
+  config.static = {
+    prefix: '/',
+    dir: path.join(appInfo.baseDir, 'app/dist')
+  }
 
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1609307136236_1096'
