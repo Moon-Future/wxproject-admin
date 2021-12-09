@@ -35,39 +35,41 @@
 
     <div class="form-wrapper" v-else :style="{ width: width }">
       <el-form ref="form" :model="formData" label-width="80px" label-position="left">
-        <el-form-item v-for="(item, index) in fields" :class="{ required: item.required }" :prop="item.field" :label="item.label" :key="index">
-          <template v-if="!item.nodeType || item.nodeType === 'input'">
-            <el-input v-model="formData[item.field]" :disabled="item.disabled && row"></el-input>
-          </template>
-          <template v-if="item.nodeType === 'textarea'">
-            <el-input v-model="formData[item.field]" type="textarea" :rows="item.rows || 8"></el-input>
-          </template>
-          <template v-if="item.nodeType === 'number'">
-            <el-input-number v-model="formData[item.field]" :min="0"></el-input-number>
-          </template>
-          <template v-if="item.nodeType === 'select'">
-            <el-select v-model="formData[item.field]" placeholder="请选择">
-              <el-option v-for="option in item.options" :key="option.value" :label="option.label" :value="option.value"></el-option>
-            </el-select>
-          </template>
-          <template v-if="item.nodeType === 'richtext'">
-            <div class="rich-editor">
-              <quill-editor
-                ref="myQuillEditor"
-                class="ql-editor"
-                v-model="formData[item.field]"
-                :options="editorOption"
-                @blur="onEditorBlur($event)"
-                @focus="onEditorFocus($event)"
-                @ready="onEditorReady($event)"
-                @change="onEditorChange($event)"
-              />
-            </div>
-          </template>
-          <template v-if="item.nodeType === 'date'">
-            <el-date-picker v-model="formData[item.field]" type="date" placeholder="选择日期"></el-date-picker>
-          </template>
-        </el-form-item>
+        <template v-for="(item, index) in fields">
+          <el-form-item v-if="!item.editHide" :class="{ required: item.required }" :prop="item.field" :label="item.label" :key="index">
+            <template v-if="!item.nodeType || item.nodeType === 'input'">
+              <el-input v-model="formData[item.field]" :disabled="item.disabled && row"></el-input>
+            </template>
+            <template v-if="item.nodeType === 'textarea'">
+              <el-input v-model="formData[item.field]" type="textarea" :rows="item.rows || 8"></el-input>
+            </template>
+            <template v-if="item.nodeType === 'number'">
+              <el-input-number v-model="formData[item.field]" :min="0"></el-input-number>
+            </template>
+            <template v-if="item.nodeType === 'select'">
+              <el-select v-model="formData[item.field]" placeholder="请选择">
+                <el-option v-for="option in item.options" :key="option.value" :label="option.label" :value="option.value"></el-option>
+              </el-select>
+            </template>
+            <template v-if="item.nodeType === 'richtext'">
+              <div class="rich-editor">
+                <quill-editor
+                  ref="myQuillEditor"
+                  class="ql-editor"
+                  v-model="formData[item.field]"
+                  :options="editorOption"
+                  @blur="onEditorBlur($event)"
+                  @focus="onEditorFocus($event)"
+                  @ready="onEditorReady($event)"
+                  @change="onEditorChange($event)"
+                />
+              </div>
+            </template>
+            <template v-if="item.nodeType === 'date'">
+              <el-date-picker v-model="formData[item.field]" type="date" placeholder="选择日期"></el-date-picker>
+            </template>
+          </el-form-item>
+        </template>
       </el-form>
       <div class="form-btngrp" :style="{ width: btngrpWidth }">
         <el-button type="primary" class="form-btn" @click="submit" :loading="submitng">提交</el-button>

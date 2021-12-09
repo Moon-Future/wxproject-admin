@@ -90,6 +90,20 @@ export default {
           ]
         },
         {
+          index: '4',
+          title: '美头秀秀',
+          subs: [
+            {
+              index: '/avatar/tab',
+              title: '标签'
+            },
+            {
+              index: '/avatar/mask',
+              title: '元素'
+            }
+          ]
+        },
+        {
           index: '/login',
           title: '退出'
         }

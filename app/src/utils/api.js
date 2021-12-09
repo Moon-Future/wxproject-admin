@@ -42,7 +42,12 @@ export const URL = {
   updateMusicSize: '/api/music/updateMusicSize',
   updateCommentCount: '/api/music/updateCommentCount',
   updateCommentLikedCount: '/api/music/updateCommentLikedCount',
-  getUpdateHistory: '/api/music/getUpdateHistory'
+  getUpdateHistory: '/api/music/getUpdateHistory',
+
+  // 美头秀秀
+  getAvatarTabs: '/api/avatar/getAvatarTabs',
+  addAvatarTabs: '/api/avatar/addAvatarTabs',
+  updateAvatarTabs: '/api/avatar/updateAvatarTabs',
 }
 
 const API = {
@@ -161,6 +166,18 @@ const API = {
 
   getUpdateHistory(data) {
     return http.post(URL.getUpdateHistory, data)
+  },
+
+  getAvatarTabs(data) {
+    return http.post(URL.getAvatarTabs, data)
+  },
+
+  addAvatarTabs(data) {
+    return http.post(URL.addAvatarTabs, data)
+  },
+
+  updateAvatarTabs(data) {
+    return http.post(URL.updateAvatarTabs, data)
   },
 }
 

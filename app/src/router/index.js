@@ -94,6 +94,23 @@ const routes = [
           requireAuth: true
         },
         component: () => import('@/views/music/Song.vue')
+      },
+
+      {
+        path: '/avatar/tab',
+        name: 'AvatarTab',
+        meta: {
+          requireAuth: true
+        },
+        component: () => import('@/views/avatar/Tab.vue')
+      },
+      {
+        path: '/avatar/mask',
+        name: 'AvatarMask',
+        meta: {
+          requireAuth: true
+        },
+        component: () => import('@/views/avatar/Mask.vue')
       }
     ]
   },
