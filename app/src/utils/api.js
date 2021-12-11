@@ -34,7 +34,6 @@ export const URL = {
   getLotteryData: '/api/lottery/getLotteryData',
   getLotteryRecent: '/api/lottery/getLotteryRecent',
 
-
   // 网易云
   getArtist: '/api/music/getArtist',
   getHotComment: '/api/music/getHotComment',
@@ -45,9 +44,14 @@ export const URL = {
   getUpdateHistory: '/api/music/getUpdateHistory',
 
   // 美头秀秀
+  getAvatarAllTab: '/api/avatar/getAvatarAllTab',
   getAvatarTab: '/api/avatar/getAvatarTab',
   addAvatarTab: '/api/avatar/addAvatarTab',
-  updateAvatarTab: '/api/avatar/updateAvatarTab',
+  delAvatarTab: '/api/avatar/delAvatarTab',
+
+  getAvatarMask: '/api/avatar/getAvatarMask',
+  addAvatarMask: '/api/avatar/addAvatarMask',
+  delAvatarMask: '/api/avatar/delAvatarMask'
 }
 
 const API = {
@@ -139,7 +143,6 @@ const API = {
     return http.post(URL.getLotteryRecent, data)
   },
 
-
   getArtist(data) {
     return http.post(URL.getArtist, data)
   },
@@ -168,6 +171,10 @@ const API = {
     return http.post(URL.getUpdateHistory, data)
   },
 
+  getAvatarAllTab(data) {
+    return http.post(URL.getAvatarAllTab, data)
+  },
+
   getAvatarTab(data) {
     return http.post(URL.getAvatarTab, data)
   },
@@ -176,9 +183,21 @@ const API = {
     return http.post(URL.addAvatarTab, data)
   },
 
-  updateAvatarTab(data) {
-    return http.post(URL.updateAvatarTab, data)
+  delAvatarTab(data) {
+    return http.post(URL.delAvatarTab, data)
   },
+
+  getAvatarMask(data) {
+    return http.post(URL.getAvatarMask, data)
+  },
+
+  addAvatarMask(data) {
+    return http.post(URL.addAvatarMask, data)
+  },
+
+  delAvatarMask(data) {
+    return http.post(URL.delAvatarMask, data)
+  }
 }
 
 export default API

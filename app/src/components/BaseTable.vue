@@ -44,7 +44,7 @@
               <el-input v-model="formData[item.field]" type="textarea" :rows="item.rows || 8"></el-input>
             </template>
             <template v-if="item.nodeType === 'number'">
-              <el-input-number v-model="formData[item.field]" :min="0"></el-input-number>
+              <el-input-number v-model="formData[item.field]" :min="item.min || 0"></el-input-number>
             </template>
             <template v-if="item.nodeType === 'select'">
               <el-select v-model="formData[item.field]" placeholder="请选择">
@@ -189,12 +189,11 @@ export default {
     iniFormData() {
       let obj = {}
       this.fields.forEach(ele => {
-        obj[ele.field] = ele.default || ''
+        obj[ele.field] = ele.default === undefined ? '' : ele.default
       })
       this.formData = obj
     },
     handleEdit(index, row, scope) {
-      let self = this
       if (this.editEmit) {
         this.$emit('handleEdit', {
           index: index,
@@ -250,6 +249,7 @@ export default {
     },
     async submit() {
       if (this.submitng) return
+      console.log('submit', this.fields)
       for (let i = 0, len = this.fields.length; i < len; i++) {
         if (this.fields[i].required && this.formData[this.fields[i].field] === '') {
           this.$message({
@@ -298,7 +298,7 @@ export default {
     cancel() {
       this.edit = false
       this.row = null
-      this.iniFormData()
+      this.$emit('refreshData')
     }
   }
 }
