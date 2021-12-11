@@ -45,9 +45,9 @@ export const URL = {
   getUpdateHistory: '/api/music/getUpdateHistory',
 
   // 美头秀秀
-  getAvatarTabs: '/api/avatar/getAvatarTabs',
-  addAvatarTabs: '/api/avatar/addAvatarTabs',
-  updateAvatarTabs: '/api/avatar/updateAvatarTabs',
+  getAvatarTab: '/api/avatar/getAvatarTab',
+  addAvatarTab: '/api/avatar/addAvatarTab',
+  updateAvatarTab: '/api/avatar/updateAvatarTab',
 }
 
 const API = {
@@ -168,16 +168,16 @@ const API = {
     return http.post(URL.getUpdateHistory, data)
   },
 
-  getAvatarTabs(data) {
-    return http.post(URL.getAvatarTabs, data)
+  getAvatarTab(data) {
+    return http.post(URL.getAvatarTab, data)
   },
 
-  addAvatarTabs(data) {
-    return http.post(URL.addAvatarTabs, data)
+  addAvatarTab(data) {
+    return http.post(URL.addAvatarTab, data)
   },
 
-  updateAvatarTabs(data) {
-    return http.post(URL.updateAvatarTabs, data)
+  updateAvatarTab(data) {
+    return http.post(URL.updateAvatarTab, data)
   },
 }
 

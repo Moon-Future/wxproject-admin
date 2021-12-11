@@ -43,11 +43,12 @@ export default {
   data() {
     return {
       fields: [
-        { field: 'id', label: 'ID', editHide: true },
+        // { field: 'id', label: 'ID', editHide: true },
         { field: 'name', label: '名称' },
         { field: 'sort', label: '排序' }
       ],
-      tableData: []
+      tableData: [],
+      url: 'addAvatarTab'
     }
   },
   methods: {
@@ -56,7 +57,7 @@ export default {
         params.pageNo = this.pageNo
         params.pageSize = this.pageSize
         this.loading = true
-        let res = await API.getAvatarTabs(params)
+        let res = await API.getAvatarTab(params)
         this.tableData = res.data.data
         this.total = res.data.count
         this.loading = false
