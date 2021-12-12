@@ -5,9 +5,8 @@ const Controller = require('egg').Controller
 class HomeController extends Controller {
   async getAvatarAllTab() {
     const { ctx, app } = this
-    const conn = await app.mysql.beginTransaction()
     try {
-      let result = await conn.query(`SELECT * FROM avatar_tab WHERE off != 1 ORDER BY sort ASC`)
+      let result = await app.mysql.query(`SELECT * FROM avatar_tab WHERE off != 1 ORDER BY sort DESC`)
       ctx.body = { status: 200, data: result }
     } catch (error) {
       throw new Error(error)
@@ -16,11 +15,10 @@ class HomeController extends Controller {
 
   async getAvatarTab() {
     const { ctx, app } = this
-    const conn = await app.mysql.beginTransaction()
     try {
       const { pageNo = 1, pageSize = 20 } = ctx.request.body
-      let total = await conn.query(`SELECT COUNT(*) as total FROM avatar_tab WHERE off != 1`)
-      let result = await conn.query(`SELECT * FROM avatar_tab WHERE off != 1 ORDER BY sort ASC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
+      let total = await app.mysql.query(`SELECT COUNT(*) as total FROM avatar_tab WHERE off != 1`)
+      let result = await app.mysql.query(`SELECT * FROM avatar_tab WHERE off != 1 ORDER BY sort DESC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
       ctx.body = { status: 200, data: result, total: total[0].total }
     } catch (error) {
       throw new Error(error)
@@ -63,20 +61,19 @@ class HomeController extends Controller {
 
   async getAvatarMask() {
     const { ctx, app } = this
-    const conn = await app.mysql.beginTransaction()
     try {
-      const { pageNo = 1, pageSize = 20, type } = ctx.request.body
+      const { pageNo = 1, pageSize = 20, tab } = ctx.request.body
       let total = 0
       let result = []
-      if (!type) {
-        total = await conn.query(`SELECT COUNT(*) as total FROM avatar_mask WHERE off != 1`)
-        result = await conn.query(`SELECT m.*, t.name as tabName FROM avatar_mask m, avatar_tab t WHERE m.tab = t.id AND m.off != 1 ORDER BY sort ASC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
-      } else if (type === 'hot') {
-        total = await conn.query(`SELECT COUNT(*) as total FROM avatar_mask WHERE off != 1 AND hot = 1`)
-        result = await conn.query(`SELECT m.*, t.name as tabName FROM avatar_mask m, avatar_tab t WHERE m.tab = t.id AND m.off != 1 AND hot = 1 ORDER BY sort ASC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
+      if (!tab) {
+        total = await app.mysql.query(`SELECT COUNT(*) as total FROM avatar_mask WHERE off != 1`)
+        result = await app.mysql.query(`SELECT m.*, t.name as tabName FROM avatar_mask m, avatar_tab t WHERE m.tab = t.id AND m.off != 1 ORDER BY m.sort DESC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
+      } else if (tab === 'hot') {
+        total = await app.mysql.query(`SELECT COUNT(*) as total FROM avatar_mask WHERE off != 1 AND hot = 1`)
+        result = await app.mysql.query(`SELECT m.*, t.name as tabName FROM avatar_mask m, avatar_tab t WHERE m.tab = t.id AND m.off != 1 AND hot = 1 ORDER BY m.sort DESC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
       } else {
-        total = await conn.query(`SELECT COUNT(*) as total FROM avatar_mask WHERE off != 1 AND tab = ?`, [type])
-        result = await conn.query(`SELECT m.*, t.name as tabName FROM avatar_mask m, avatar_tab t WHERE m.tab = t.id AND m.off != 1 AND hot = 1 ORDER BY sort ASC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
+        total = await app.mysql.query(`SELECT COUNT(*) as total FROM avatar_mask WHERE off != 1 AND tab = ?`, [tab])
+        result = await app.mysql.query(`SELECT m.*, t.name as tabName FROM avatar_mask m, avatar_tab t WHERE m.tab = t.id AND m.off != 1 AND m.tab = ? ORDER BY m.sort DESC LIMIT ?, ?`, [tab, (pageNo - 1) * pageSize, pageSize])
       }
       ctx.body = { status: 200, data: result, total: total[0].total }
     } catch (error) {

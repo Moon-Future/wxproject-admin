@@ -44,14 +44,14 @@ export const URL = {
   getUpdateHistory: '/api/music/getUpdateHistory',
 
   // 美头秀秀
-  getAvatarAllTab: '/api/avatar/getAvatarAllTab',
-  getAvatarTab: '/api/avatar/getAvatarTab',
-  addAvatarTab: '/api/avatar/addAvatarTab',
-  delAvatarTab: '/api/avatar/delAvatarTab',
+  getAvatarAllTab: '/api/wxAvatar/getAvatarAllTab',
+  getAvatarTab: '/api/wxAvatar/getAvatarTab',
+  addAvatarTab: '/api/wxAvatar/addAvatarTab',
+  delAvatarTab: '/api/wxAvatar/delAvatarTab',
 
-  getAvatarMask: '/api/avatar/getAvatarMask',
-  addAvatarMask: '/api/avatar/addAvatarMask',
-  delAvatarMask: '/api/avatar/delAvatarMask'
+  getAvatarMask: '/api/wxAvatar/getAvatarMask',
+  addAvatarMask: '/api/wxAvatar/addAvatarMask',
+  delAvatarMask: '/api/wxAvatar/delAvatarMask'
 }
 
 const API = {
