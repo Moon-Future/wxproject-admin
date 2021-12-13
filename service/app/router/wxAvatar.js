@@ -8,5 +8,5 @@ module.exports = function(router, controller) {
   router.post('/api/wxAvatar/addAvatarMask', controller.wxAvatar.index.addAvatarMask);
   router.post('/api/wxAvatar/delAvatarMask', controller.wxAvatar.index.delAvatarMask);
 
-  router.get('/api/wxAvatar/importMask', controller.wxAvatar.importData.importMask);
+  // router.get('/api/wxAvatar/importMask', controller.wxAvatar.importData.importMask);
 }

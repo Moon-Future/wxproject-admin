@@ -42,8 +42,17 @@ export default {
         { field: 'name', label: '名称', required: true },
         { field: 'src', label: '图片', required: true, tableNodeType: 'img', nodeType: 'input' },
         { field: 'tab', label: '标签', required: true, nodeType: 'select', options: [], showField: 'tabName' },
-        { field: 'leftValue', label: '左距', required: true, nodeType: 'number' },
-        { field: 'topValue', label: '上距', required: true, nodeType: 'number' },
+        {
+          field: 'cover',
+          label: '是否铺满',
+          required: true,
+          nodeType: 'select',
+          default: 0,
+          options: [
+            { value: 0, label: '否' },
+            { value: 1, label: '是' }
+          ]
+        },
         { field: 'sort', label: '排序', required: true, nodeType: 'number', min: 1 },
         {
           field: 'hot',

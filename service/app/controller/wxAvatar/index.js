@@ -85,14 +85,14 @@ class HomeController extends Controller {
     const { ctx, app } = this
     const conn = await app.mysql.beginTransaction()
     try {
-      const { id, name, src, tab, leftValue = 0, topValue = 0, sort = 1, hot = 0 } = ctx.request.body
+      const { id, name, src, tab, cover = 0, sort = 1, hot = 0 } = ctx.request.body
       if (id) {
-        await conn.query(`UPDATE avatar_mask SET name = ?, src = ?, tab = ?, leftValue = ?, topValue = ?, sort = ?, hot = ? WHERE id = ?`, [name, src, tab, leftValue, topValue, sort, hot, id])
+        await conn.query(`UPDATE avatar_mask SET name = ?, src = ?, tab = ?, cover = ?, sort = ?, hot = ? WHERE id = ?`, [name, src, tab, cover, sort, hot, id])
         await conn.commit()
         ctx.body = { status: 200, message: '更新成功' }
       } else {
-        await conn.query(`INSERT INTO avatar_mask (id, name, src, tab, leftValue, topValue, sort, hot, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [shortid(), name, src, tab, leftValue, topValue, sort, hot, new Date().getTime()])
+        await conn.query(`INSERT INTO avatar_mask (id, name, src, tab, cover, sort, hot, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [shortid(), name, src, tab, cover, sort, hot, new Date().getTime()])
         await conn.commit()
         ctx.body = { status: 200, message: '新增成功' }
       }
