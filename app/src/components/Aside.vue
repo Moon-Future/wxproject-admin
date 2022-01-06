@@ -104,6 +104,16 @@ export default {
           ]
         },
         {
+          index: '5',
+          title: '恋爱百分百',
+          subs: [
+            {
+              index: '/love100/user',
+              title: '用户'
+            }
+          ]
+        },
+        {
           index: '/login',
           title: '退出'
         }

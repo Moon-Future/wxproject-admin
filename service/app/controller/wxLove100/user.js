@@ -154,6 +154,20 @@ class HomeController extends Controller {
       ctx.body = { message: '服务端出错' }
     }
   }
+
+  async getUserList() {
+    const { ctx, app } = this
+    const conn = await app.mysql.beginTransaction()
+    try {
+      const result = await conn.query(`SELECT * FROM love100_user`)
+      await conn.commit()
+      ctx.body = { status: 1, data: result }
+    } catch(e) {
+      await conn.rollback()
+      console.log(e)
+      ctx.body = { message: '服务端出错' }
+    }
+  }
 }
 
 module.exports = HomeController

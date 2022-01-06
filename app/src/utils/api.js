@@ -51,7 +51,10 @@ export const URL = {
 
   getAvatarMask: '/api/wxAvatar/getAvatarMask',
   addAvatarMask: '/api/wxAvatar/addAvatarMask',
-  delAvatarMask: '/api/wxAvatar/delAvatarMask'
+  delAvatarMask: '/api/wxAvatar/delAvatarMask',
+
+  // 恋爱百分百
+  getUserList: '/api/wxLove100/getUserList/'
 }
 
 const API = {
@@ -197,6 +200,10 @@ const API = {
 
   delAvatarMask(data) {
     return http.post(URL.delAvatarMask, data)
+  },
+
+  getUserList() {
+    return http.post(URL.getUserList)
   }
 }
 
