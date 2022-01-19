@@ -5,6 +5,8 @@ module.exports = function(router, controller) {
   router.post('/api/wxName/getArticleFile/', controller.wxName.index.getArticleFile);
   router.post('/api/wxName/createName/', controller.wxName.create.createName);
 
+  router.post('/api/wxName/getAccessToken/', controller.wxName.login.getAccessToken);
+
   // 管理后台
   router.post('/api/wxName/getChinese/', controller.wxName.admin.getChinese);
   router.post('/api/wxName/addChinese/', controller.wxName.admin.addChinese);
