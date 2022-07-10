@@ -71,19 +71,23 @@ const cos = new COS({
   SecretKey: tencentCloud.SecretKey,
 })
 
-const cosUpload = function (fileName, filePath) {
+const cosUpload = function (fileName, filePath, bucketInfo) {
   // 分片上传
   return new Promise((resolve, reject) => {
     cos.sliceUploadFile(
       {
-        Bucket: tencentCloud.missLoveBucket,
-        Region: 'ap-guangzhou',
+        Bucket: bucketInfo.bucket,
+        Region: bucketInfo.region,
         Key: fileName,
         FilePath: filePath,
       },
       function (err, data) {
-        console.log('err', err)
-        console.log('data', data)
+        // console.log('err', err)
+        // console.log('data', data)
+        if (err) {
+          reject(err)
+          return
+        }
         resolve(data)
       }
     )

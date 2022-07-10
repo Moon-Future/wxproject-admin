@@ -2,6 +2,7 @@
 const { cosUpload, dateFormat } = require('../../utils/index')
 const shortid = require('shortid')
 const { transporter, mailOptions } = require('../../utils/email')
+const { tencentCloud } = require('../../../config/secret')
 
 const Controller = require('egg').Controller
 
@@ -204,7 +205,7 @@ class HomeController extends Controller {
     try {
       let file = ctx.request.files[0]
       let { filename, filepath } = file
-      const result = await cosUpload('post/' + shortid() + filename.substr(filename.lastIndexOf('.')), filepath)
+      const result = await cosUpload('post/' + shortid() + filename.substr(filename.lastIndexOf('.')), filepath, tencentCloud.missLove)
       ctx.body = { imageSrc: result.Location }
     } catch (err) {
       throw new Error(err)

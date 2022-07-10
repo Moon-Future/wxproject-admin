@@ -7,8 +7,8 @@ class HomeController extends Controller {
     const { ctx, app } = this
     const conn = await app.mysql.beginTransaction()
     try {
-      const { common } = ctx.request.body
-      const cardList = await conn.query(`SELECT * FROM love100_card WHERE verify = ? AND off = ? ORDER BY date`, [1, 0])
+      const { common, user } = ctx.request.body
+      let cardList = await conn.query(`SELECT * FROM love100_card WHERE verify = ? AND off = ? AND (ISNULL(user) OR user = ?) ORDER BY date`, [1, 0, user])
       let finishedList = []
       if (common) {
         finishedList = await conn.query(`SELECT * FROM love100_finished WHERE common = ? AND off != 1`, [common])
@@ -95,6 +95,67 @@ class HomeController extends Controller {
       const result = await conn.query(`SELECT * from love100_sentence WHERE off != 1 ORDER BY rand() LIMIT 1 `)
       await conn.commit()
       ctx.body = { status: 1, data: result.length ? result[0].content : '' }
+    } catch(e) {
+      await conn.rollback()
+      console.log(e)
+      ctx.body = { message: '服务端出错' }
+    }
+  }
+
+  // 用户上传事件
+  async cardAdd() {
+    const { ctx, app } = this
+    const conn = await app.mysql.beginTransaction()
+    try {
+      const defaultUrl = 'https://love100-1255423800.cos.ap-shanghai.myqcloud.com/upload%2Fcard%2Fdefault.jpeg'
+      let { title, url, user, id } = ctx.request.body
+      if (!user) {
+        ctx.body = { status: 0, message: '请先登录' }
+        return
+      }
+      if (url === '') {
+        url = defaultUrl
+      }
+      if (id) {
+        // 编辑
+        const result = await conn.query(`SELECT * FROM love100_card WHERE id = ?`, [id])
+        await conn.query(`UPDATE love100_card SET id = ?, off = 1 WHERE id = ?`, [`update_${shortid()}_${id}`, id])
+        let obj = result[0]
+        await conn.query(`INSERT INTO love100_card (id, title, url, user, verify, date, updateDate) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+            [id, title, url, obj.user, 1, obj.date, Date.now()])
+        await conn.commit()
+        obj.title = title
+        obj.url = url
+        ctx.body = { status: 1, message: '更新成功', data: obj }
+      } else {
+        // 新增
+        const newId = shortid()
+        await conn.query(`INSERT INTO love100_card (id, title, url, user, verify, date) VALUES (?, ?, ?, ?, ?, ?)`, 
+            [newId, title, url, user, 1, Date.now()])
+        const result = await conn.query(`SELECT * FROM love100_card WHERE id = ?`, [newId])
+        await conn.commit()
+        ctx.body = { status: 1, message: '提交成功', data: result[0] }
+      }
+    } catch(e) {
+      await conn.rollback()
+      console.log(e)
+      ctx.body = { message: '服务端出错' }
+    }
+  }
+
+  // 删除上传的事件
+  async cardDelete() {
+    const { ctx, app } = this
+    const conn = await app.mysql.beginTransaction()
+    try {
+      let { user, id } = ctx.request.body
+      if (!user) {
+        ctx.body = { status: 0, message: '请先登录' }
+        return
+      }
+      await conn.query(`UPDATE love100_card SET off = 1 WHERE id = ?`, [id])
+      await conn.commit()
+      ctx.body = { status: 1, message: '删除成功', data: {} }
     } catch(e) {
       await conn.rollback()
       console.log(e)

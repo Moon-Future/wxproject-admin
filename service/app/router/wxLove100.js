@@ -14,8 +14,12 @@ module.exports = function (router, controller) {
   router.post('/api/wxLove100/cardFinished/', controller.wxLove100.card.cardFinished)
   router.post('/api/wxLove100/cardEdit/', controller.wxLove100.card.cardEdit)
   router.post('/api/wxLove100/getSentence/', controller.wxLove100.card.getSentence)
+  router.post('/api/wxLove100/cardAdd/', controller.wxLove100.card.cardAdd)
+  router.post('/api/wxLove100/cardDelete/', controller.wxLove100.card.cardDelete)
 
   router.post('/api/wxLove100/suggest/', controller.wxLove100.system.suggest)
+
+  router.post('/api/wxLove100/uploadFile/', controller.wxLove100.common.uploadFile)
 
 
   
