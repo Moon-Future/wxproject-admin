@@ -21,6 +21,9 @@ module.exports = function (router, controller) {
 
   router.post('/api/wxLove100/uploadFile/', controller.wxLove100.common.uploadFile)
 
+  router.post('/api/wxLove100/getFestival/', controller.wxLove100.festival.getFestival)
+
+
 
   
 
