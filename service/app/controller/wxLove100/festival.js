@@ -12,7 +12,6 @@ class HomeController extends Controller {
       const userRes = await app.mysql.query(`SELECT * FROM love100_user WHERE id = ?`, [user])
       let common = ''
       let finishedList = []
-      let memoryList = []
       if (userRes.length) {
         common = userRes[0].common
       }
@@ -37,6 +36,7 @@ class HomeController extends Controller {
         })
       }
       // 获取添加的纪念日
+      const memoryList = await app.mysql.query(`SELECT * FROM love100_memory WHERE user = ? AND off != 1`, [user])
       ctx.body = { status: 1, finishedList, memoryList }
     } catch (err) {
       throw new Error(err)
