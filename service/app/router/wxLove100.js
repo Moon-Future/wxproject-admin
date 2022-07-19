@@ -24,7 +24,7 @@ module.exports = function (router, controller) {
   router.post('/api/wxLove100/getFestival/', controller.wxLove100.festival.getFestival)
 
   router.post('/api/wxLove100/addMemory/', controller.wxLove100.memory.addMemory)
-  router.post('/api/wxLove100/getMemory/', controller.wxLove100.memory.getMemory)
+  router.post('/api/wxLove100/deleteMemory/', controller.wxLove100.memory.deleteMemory)
 
   // router.get('/api/wxLove100/importCardList/', controller.wxLove100.importData.importCardList)
 
