@@ -26,7 +26,7 @@ class HomeController extends Controller {
         userInfo = res.length ? res : userInfo
       }
       await conn.commit()
-      ctx.body = { userInfo: userInfo[0], session_key: res.data.session_key, access_token: accessTokenRes.data.access_token }
+      ctx.body = { userInfo: userInfo[0], access_token: accessTokenRes.data.access_token }
     } catch(e) {
       await conn.rollback()
       console.log(e)
