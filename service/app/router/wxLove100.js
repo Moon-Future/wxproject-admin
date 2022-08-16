@@ -26,6 +26,9 @@ module.exports = function (router, controller) {
   router.post('/api/wxLove100/addMemory/', controller.wxLove100.memory.addMemory)
   router.post('/api/wxLove100/deleteMemory/', controller.wxLove100.memory.deleteMemory)
 
+  router.post('/api/wxLove100/getGameParam/', controller.wxLove100.game.getGameParam)
+  router.post('/api/wxLove100/addGameParam/', controller.wxLove100.game.addGameParam)
+
   // router.get('/api/wxLove100/importCardList/', controller.wxLove100.importData.importCardList)
 
   // io.of('/love100').route('agree', io.controller.wxLove100.agree)
