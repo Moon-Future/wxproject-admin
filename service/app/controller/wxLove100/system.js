@@ -37,6 +37,23 @@ class HomeController extends Controller {
       ctx.body = { message: '服务端出错' }
     }
   }
+
+  async writeLog() {
+    const { ctx, app } = this
+    const conn = await app.mysql.beginTransaction()
+    try {
+      const { user, log } = ctx.request.body
+      const date = Date.now()
+      await conn.query(`INSERT love100_log (id, user, json_txt, create_time) VALUES (?, ?, ?, ?)`, 
+        [shortid(), user, JSON.stringify(log), Date.now()])
+      await conn.commit()
+      ctx.body = { status: 1 }
+    } catch(e) {
+      await conn.rollback()
+      console.log(e)
+      ctx.body = { message: '服务端出错' }
+    }
+  }
 }
 
 module.exports = HomeController
