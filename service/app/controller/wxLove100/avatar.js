@@ -38,7 +38,7 @@ class HomeController extends Controller {
     const conn = await app.mysql.beginTransaction()
     try {
       const { pageNo, pageSize } = ctx.request.body
-      const res = await conn.query(`SELECT * FROM love100_avatar WHERE off != 1 ORDER BY hot DESC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
+      const res = await conn.query(`SELECT * FROM love100_avatar WHERE off != 1 ORDER BY hot, create_time DESC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
       const count = (await app.mysql.query(`SELECT COUNT(*) as count FROM love100_avatar WHERE off != 1`)) || [{ count: 0 }]
       await conn.commit()
       ctx.body = { status: 1, data: res, total: count[0].count }
