@@ -54,7 +54,11 @@ export const URL = {
   delAvatarMask: '/api/wxAvatar/delAvatarMask',
 
   // 恋爱百分百
-  getUserList: '/api/wxLove100/getUserList/'
+  getUserList: '/api/wxLove100/getUserList/',
+  uploadAvatar: '/api/wxLove100/uploadAvatar/',
+  saveAvatar: '/api/wxLove100/saveAvatar/',
+  modifyAvatar: '/api/wxLove100/modifyAvatar/',
+  getAvatarList: '/api/wxLove100/getAvatarList/'
 }
 
 const API = {
@@ -202,8 +206,20 @@ const API = {
     return http.post(URL.delAvatarMask, data)
   },
 
-  getUserList() {
-    return http.post(URL.getUserList)
+  getUserList(data) {
+    return http.post(URL.getUserList, data)
+  },
+
+  saveAvatar(data) {
+    return http.post(URL.saveAvatar, data)
+  },
+
+  modifyAvatar(data) {
+    return http.post(URL.modifyAvatar, data)
+  },
+
+  getAvatarList(data) {
+    return http.post(URL.getAvatarList, data)
   }
 }
 

@@ -29,6 +29,11 @@ module.exports = function (router, controller) {
   router.post('/api/wxLove100/getGameParam/', controller.wxLove100.game.getGameParam)
   router.post('/api/wxLove100/addGameParam/', controller.wxLove100.game.addGameParam)
 
+  router.post('/api/wxLove100/uploadAvatar/', controller.wxLove100.avatar.uploadAvatar)
+  router.post('/api/wxLove100/saveAvatar/', controller.wxLove100.avatar.saveAvatar)
+  router.post('/api/wxLove100/modifyAvatar/', controller.wxLove100.avatar.modifyAvatar)
+  router.post('/api/wxLove100/getAvatarList/', controller.wxLove100.avatar.getAvatarList)
+
   router.post('/api/wxLove100/writeLog/', controller.wxLove100.system.writeLog)
 
   // router.get('/api/wxLove100/importCardList/', controller.wxLove100.importData.importCardList)

@@ -119,6 +119,14 @@ const routes = [
           requireAuth: true
         },
         component: () => import('@/views/love100/user.vue')
+      },
+      {
+        path: '/love100/avatar',
+        name: 'Love100Avatar',
+        meta: {
+          requireAuth: true
+        },
+        component: () => import('@/views/love100/avatar.vue')
       }
     ]
   },

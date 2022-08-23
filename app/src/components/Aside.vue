@@ -110,6 +110,10 @@ export default {
             {
               index: '/love100/user',
               title: '用户'
+            },
+            {
+              index: '/love100/avatar',
+              title: '头像'
             }
           ]
         },
