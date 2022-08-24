@@ -10,9 +10,12 @@ class HomeController extends Controller {
     const { ctx } = this
     try {
       const file = ctx.request.files[0]
-      const { filepath } = file
-      const result = await cosUpload(`upload/avatar/avatar_${shortid()}.jpg`, filepath, tencentCloud.love100)
-      ctx.body = { filePath: result.Location }
+      const avatarField = ctx.request.body.avatarField
+      const { filename, filepath } = file
+      const filenameList = filename.split('.')
+      filenameList.pop()
+      const result = await cosUpload(`upload/avatar/${filenameList.join('.')}.jpg`, filepath, tencentCloud.love100)
+      ctx.body = { filePath: result.Location, avatarField }
     } catch (err) {
       throw new Error(err)
     }
@@ -38,7 +41,7 @@ class HomeController extends Controller {
     const conn = await app.mysql.beginTransaction()
     try {
       const { pageNo, pageSize } = ctx.request.body
-      const res = await conn.query(`SELECT * FROM love100_avatar WHERE off != 1 ORDER BY hot, create_time DESC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
+      const res = await conn.query(`SELECT * FROM love100_avatar WHERE off != 1 ORDER BY hot DESC, create_time DESC LIMIT ?, ?`, [(pageNo - 1) * pageSize, pageSize])
       const count = (await app.mysql.query(`SELECT COUNT(*) as count FROM love100_avatar WHERE off != 1`)) || [{ count: 0 }]
       await conn.commit()
       ctx.body = { status: 1, data: res, total: count[0].count }

@@ -3,64 +3,63 @@
     <div class="btn-box">
       <el-button @click="addNew" size="mini">新增</el-button>
     </div>
-    <el-dialog :visible.sync="visible" :close-on-click-modal="false">
+    <el-dialog :visible.sync="visible" :close-on-click-modal="false" @close="dialogClose">
       <div class="avatar-box">
-        <el-avatar class="avatar-item" shape="square" :size="100" :fit="fit" :src="avatar1" @click.native="openUpload('avatar1')">+</el-avatar>
-        <el-avatar class="avatar-item" shape="square" :size="100" :fit="fit" :src="avatar2" @click.native="openUpload('avatar2')">+</el-avatar>
+        <el-upload
+          ref="upload"
+          :action="uploadUrl"
+          :auto-upload="false"
+          :file-list="fileList"
+          limit="2"
+          multiple
+          :http-request="handleUploadForm"
+          :on-success="successUpload"
+          list-type="picture-card">
+          <i class="el-icon-plus"></i>
+        </el-upload>
       </div>
       <div class="input-box">
         <el-input v-model="hotValue"></el-input>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="visible = false">取 消</el-button>
-        <el-button type="danger" v-loading="loading" @click="del" v-if="modifyItem">删 除</el-button>
-        <el-button type="primary" v-loading="loading" @click="submit">提 交</el-button>
+        <el-button type="danger" v-loading="loading" @click="handleDelete" v-if="modifyItem">删 除</el-button>
+        <el-button type="primary" v-loading="loading" @click="uploadImage">提 交</el-button>
       </div>
     </el-dialog>
-    <my-upload
-      field="avatar"
-      :modelValue="uploadShow"
-      :width="200"
-      :height="200"
-      :url="uploadUrl"
-      @crop-upload-success="cropUploadSuccess"
-      @crop-upload-fail="cropUploadFail"
-      @update:modelValue="cropClose"
-      img-format="jpg"
-    ></my-upload>
-
     <div class="avatar-list">
       <div class="avatar-row" v-for="(item, i) in avatarList" :key="i" @click="edit(item)">
-        <el-avatar class="avatar-item" shape="square" :size="100" :fit="fit" :src="item.avatar1"></el-avatar>
-        <el-avatar class="avatar-item" shape="square" :size="100" :fit="fit" :src="item.avatar2"></el-avatar>
+        <div>
+          <el-avatar class="avatar-item" shape="square" :size="100" :fit="fit" :src="item.avatar1"></el-avatar>
+          <div class="avatar-name">{{item.fileName1}}</div>
+        </div>
+        <div>
+          <el-avatar class="avatar-item" shape="square" :size="100" :fit="fit" :src="item.avatar2"></el-avatar>
+          <div class="avatar-name">{{item.fileName2}}</div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import myUpload from 'vue-image-crop-upload'
 import { URL } from '@/utils/api'
 import API from '@/utils/api'
 export default {
   name: 'Avatar',
-  components: {
-    myUpload
-  },
   data() {
     return {
       visible: false,
-      uploadShow: false,
       uploadUrl: URL.uploadAvatar,
-      avatar1: '',
-      avatar2: '',
+      fileList: [],
       loading: false,
       pageNo: 1,
       pageSize: 10,
       avatarList: [],
       total: 0,
       modifyItem: null,
-      hotValue: 1
+      hotValue: 1,
+      index: 1
     }
   },
   created() {
@@ -70,6 +69,10 @@ export default {
     async getAvatarList() {
       try {
         const res = await API.getAvatarList({ pageNo: this.pageNo, pageSize: this.pageSize })
+        res.data.data.forEach(item => {
+          item.fileName1 = item.avatar1.split('/').pop()
+          item.fileName2 = item.avatar2.split('/').pop()
+        })
         this.avatarList = res.data.data
       } catch (e) {
         console.log(e)
@@ -78,28 +81,67 @@ export default {
     addNew() {
       this.visible = true
       this.modifyItem = null
+      this.hotValue = 1
       this.avatar1 = ''
       this.avatar2 = ''
-      this.hotValue = 1
+      this.index = 1
     },
-    openUpload(field) {
-      this.field = field
-      this.uploadShow = true
+    dialogClose() {
+      this.fileList = []
+      this.$refs.upload.clearFiles()
     },
-    cropUploadSuccess(e) {
-      if (this.field === 'avatar1') {
-        this.avatar1 = 'https://' + e.filePath
+    handleUploadForm(param) {
+      console.log('handleUploadForm', param)
+      let formData = new FormData()
+      // 在formData中加入我们需要的参数
+      formData.append('file', param.file)
+    	formData.append('avatarField', this.index === 1 ? 'avatar1' : 'avatar2')
+      this.index += 1
+      // 向后端发送数据
+      this.$http.post(this.uploadUrl, formData).then(async (res) => {
+        const { filePath, avatarField } = res.data
+        if (avatarField === 'avatar1') {
+          this.avatar1 = 'https://' + filePath
+        } else {
+          this.avatar2 = 'https://' + filePath
+        }
+        if (this.avatar1 !== '' && this.avatar2 !== '') {
+          await this.submit()
+        }
+      })
+    },
+    async uploadImage() {
+      if (this.$refs.upload.uploadFiles.length < 2) {
+        this.$message({
+          message: '请上传两张图片',
+          duration: 1000,
+          type: 'info'
+        })
+        return
+      }
+      let needUpload = false
+      this.$refs.upload.uploadFiles.forEach((item, index) => {
+        if (item.status === 'ready') {
+          needUpload = true
+        } else {
+          if (index === 0) {
+            this.avatar1 = item.url
+            this.index = 2
+          } else if (index === 1) {
+            this.avatar2 = item.url
+            this.index = 1
+          }
+        }
+      })
+      this.loading = true
+      if (needUpload) {
+        this.$refs.upload.submit()
       } else {
-        this.avatar2 = 'https://' + e.filePath
+        await this.submit()
       }
     },
-    cropClose(e) {
-      this.uploadShow = false
-    },
     async submit() {
-      if (this.loading || this.avatar1 === '' || this.avatar2 === '') return
       try {
-        this.loading = true
         if (this.modifyItem) {
           await API.modifyAvatar({ id: this.modifyItem.id, avatar1: this.avatar1, avatar2: this.avatar2, hot: this.hotValue, operate: 1 })
         } else {
@@ -113,7 +155,7 @@ export default {
         console.log(e)
       }
     },
-    async del() {
+    async handleDelete() {
       try {
         if (this.loading) return
         this.loading = true
@@ -128,10 +170,12 @@ export default {
     },
     edit(item) {
       this.visible = true
-      this.avatar1 = item.avatar1
-      this.avatar2 = item.avatar2
       this.hotValue = item.hot
       this.modifyItem = item
+      this.fileList = [{ name: '', url: item.avatar1 }, { name: '', url: item.avatar2 }]
+      this.avatar1 = ''
+      this.avatar2 = ''
+      this.index = 1
     }
   }
 }
@@ -159,8 +203,12 @@ export default {
   .avatar-row {
     display: flex;
     margin: 10px 20px 10px 0;
+    cursor: pointer;
     .avatar-item {
       margin-right: 10px;
+    }
+    .avatar-name {
+      font-size: 12px;
     }
   }
 }
