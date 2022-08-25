@@ -21,6 +21,26 @@ class HomeController extends Controller {
       ctx.body = { message: '服务端出错' }
     }
   }
+
+  async importAvatar() {
+    const { ctx, app } = this
+    try {
+      const avatarHost = 'https://love100-1255423800.cos.ap-shanghai.myqcloud.com/upload/avatar'
+      let startIndex = 61
+      let endIndex = 70
+      for (let i = startIndex; i <= endIndex; i++) {
+        let item = cards[i]
+        let index = i < 100 ? `0${i}` : i
+        let avatar1 = `${avatarHost}/avatar_${index}_1.jpg`
+        let avatar2 = `${avatarHost}/avatar_${index}_2.jpg`
+        await conn.query(`INSERT INTO love100_avatar (id, avatar1, avatar2, hot, create_time) VALUES (?, ?, ?, ?, ?)`, [shortid(), avatar1, avatar2, 1, Date.now()])
+      }
+      ctx.body = '导入成功'
+    } catch(e) {
+      console.log(e)
+      ctx.body = { message: '服务端出错' }
+    }
+  }
 }
 
 module.exports = HomeController
