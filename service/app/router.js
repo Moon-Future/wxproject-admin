@@ -8,6 +8,7 @@ const wxLove100 = require('./router/wxLove100')
 const user = require('./router/user')
 const musicComment = require('./router/musicComment')
 const wxAvatar = require('./router/wxAvatar')
+const xmData = require('./router/xmData')
 /**
  * @param {Egg.Application} app - egg application
  */
@@ -21,5 +22,6 @@ module.exports = (app) => {
   wxLove100(router, controller, io)
   musicComment(router, controller)
   wxAvatar(router, controller)
+  xmData(router, controller)
   // importToMysql(router, controller);
 }
