@@ -33,7 +33,7 @@ class HomeController extends Controller {
     try {
       const { bookmark } = ctx.request.body
       const { id, name, url, icon } = bookmark
-      conn.query(`UPDATE bookmark_bookmark SET web_name = ?, web_url = ?, icon_url = ? WHERE id = ?`, [name, url, icon, id])
+      await conn.query(`UPDATE bookmark_bookmark SET web_name = ?, web_url = ?, icon_url = ? WHERE id = ?`, [name, url, icon, id])
       await conn.commit()
       ctx.body = { status: 1 }
     } catch (e) {
@@ -49,10 +49,25 @@ class HomeController extends Controller {
     try {
       const { bookmark } = ctx.request.body
       const { id, folder } = bookmark
-      conn.query(`UPDATE bookmark_bookmark SET delete_status = 1 WHERE id = ?`, [id])
+      await conn.query(`UPDATE bookmark_bookmark SET delete_status = 1 WHERE id = ?`, [id])
       await conn.commit()
       ctx.body = { status: 1 }
     } catch (e) {
+      await conn.rollback()
+      console.log(e)
+      ctx.body = { message: '服务端出错' }
+    }
+  }
+
+  async getBookmark() {
+    const { ctx, app } = this
+    const conn = await app.mysql.beginTransaction()
+    try {
+      const { userId } = ctx.request.body
+      const res = await conn.query(`SELECT * FROM bookmark_bookmark WHERE delete_status != 1`)
+      await conn.commit()
+      ctx.body = { status: 1, data: res }
+    } catch (err) {
       await conn.rollback()
       console.log(e)
       ctx.body = { message: '服务端出错' }
