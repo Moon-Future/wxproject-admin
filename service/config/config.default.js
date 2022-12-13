@@ -16,7 +16,7 @@ module.exports = (appInfo) => {
 
   config.static = {
     prefix: '/',
-    dir: path.join(appInfo.baseDir, 'app/dist')
+    dir: path.join(appInfo.baseDir, 'app/dist'),
   }
 
   // use for cookie sign key, should change to your own and keep security
@@ -45,6 +45,7 @@ module.exports = (appInfo) => {
       password: mysql.password,
       // database
       database: mysql.database,
+      charset: 'utf8mb4',
     },
     // load into app, default is open
     app: true,
@@ -81,6 +82,13 @@ module.exports = (appInfo) => {
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
+  }
+
+  config.bodyParser = {
+    formLimit: '30mb',
+    jsonLimit: '30mb',
+    textLimit: '30mb',
+    // 值的大小可以根据自己的需求修改 这里只做演示
   }
 
   return {
