@@ -23,7 +23,7 @@ create table bookmark_user_config(
   id bigint(20) PRIMARY key AUTO_INCREMENT ,
 	user_id varchar(256) not null comment '用户id',
 	config_type int not null default 1 comment '设置类型 1-时钟,2-秒钟，3-首页, 4-时钟进制',
-	config_value varchar(256) default '' comment '配置value',  3456789  ---123
+	config_value varchar(256) default '' comment '配置value',
 	config_status tinyint(1) not null  default 1 comment '是否启用 1-启用 0-关闭',
 	delete_status tinyint(1) not null  default 0 comment '是否启用 0-不删除 1-删除',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT ' 创建时间 ',
@@ -32,6 +32,16 @@ create table bookmark_user_config(
   )ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE = utf8mb4_general_ci;
 -- 1. 用户设置密码， 2、服务端加密入库， 3、输入密码，给服务端验证密码正确性， 4、成功前端解密、服务端
 
+
+drop table if exists bookmark_webicon;
+create table bookmark_webicon(
+  id bigint(20) PRIMARY key AUTO_INCREMENT ,
+	web_url varchar(256) default '' comment '网址',
+	icon_url varchar(256) default '' comment '网址图标',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+	  KEY `idx_web_url` (`web_url`) USING BTREE
+  )ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE = utf8mb4_general_ci;
 
   CREATE TABLE `sys_permission` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
