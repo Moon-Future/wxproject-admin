@@ -154,22 +154,11 @@ class HomeController extends Controller {
     }
   }
 
-  async addBookmark() {
-    const { ctx, app } = this
-    try {
-      const { bookmarks } = ctx.request.body
-      console.log(bookmarks)
-      ctx.body = 'ok'
-    } catch (e) {
-      throw new eor(err)
-    }
-  }
-
-  async saveNewNode() {
+  async addNewNode() {
     const { ctx, app } = this
     const conn = await app.mysql.beginTransaction()
     try {
-      let { parentID, id, name, url, icon, folderStatus } = ctx.request.body
+      let { parentID, id, name, url, icon, folderStatus, desc = '' } = ctx.request.body
 
       let sort = 1
       const res = await conn.select('bookmark_bookmark', {
@@ -193,6 +182,7 @@ class HomeController extends Controller {
         folder_status: folderStatus ? 1 : 0,
         parent_id: parentID,
         sort_number: sort,
+        web_desc: desc.slice(0, 1000)
       })
       await conn.commit()
       ctx.body = { status: 1, data: { sort, icon } }

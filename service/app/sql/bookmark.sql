@@ -10,6 +10,7 @@ CREATE TABLE `bookmark_bookmark` (
   `parent_id` varchar(256) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `sort_number` int DEFAULT NULL,
   `user_id` varchar(256) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `web_desc` varchar(1024) COLLATE utf8mb4_general_ci DEFAULT NULL DEFAULT '',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT ' 创建时间 ',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
   `delete_status` tinyint(1) NOT NULL DEFAULT 0,
